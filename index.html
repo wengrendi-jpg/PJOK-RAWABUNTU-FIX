@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PJOK Digital - SDN Rawabuntu 03</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { margin: 0; padding: 0; font-family: 'Nunito', sans-serif; background: #e3f2fd; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        .box { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 350px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        
+        .logo { width: 100px; margin-bottom: 15px; display: block; margin-left: auto; margin-right: auto; }
+        .img-error { color: red; font-size: 11px; border: 1px dashed red; padding: 5px; display: none; margin-bottom: 10px;}
+
+        h2 { color: #1565c0; margin: 0 0 5px; font-size: 22px; font-weight: 800; }
+        p { color: #666; font-size: 14px; margin-bottom: 25px; line-height: 1.4; }
+
+        .input-group { margin-bottom: 15px; text-align: left; }
+        .label { font-size: 12px; font-weight: bold; color: #555; margin-left: 5px; }
+        .input-field { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; box-sizing: border-box; margin-top: 5px; font-size: 14px; font-family: 'Nunito', sans-serif; }
+        
+        .btn-masuk { width: 100%; padding: 12px; border: none; border-radius: 30px; font-weight: 800; cursor: pointer; font-size: 15px; margin-top: 5px; transition: 0.2s; background: #1976d2; color: white; box-shadow: 0 4px 10px rgba(25, 118, 210, 0.3); }
+        .btn-masuk:active { transform: scale(0.98); }
+
+        /* Area rahasia kecil di pojok bawah untuk Bapak (Opsional) */
+        .admin-secret { margin-top: 20px; font-size: 10px; color: #e3f2fd; cursor: default; }
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <img src="logo_final.png" alt="Logo Sekolah" class="logo" onerror="document.getElementById('pesan-error').style.display='block'; this.style.display='none'">
+        
+        <div id="pesan-error" class="img-error">
+            ⚠️ <b>GAMBAR TIDAK DITEMUKAN</b><br>Cek file "logo_final.png"
+        </div>
+
+        <h2>PJOK DIGITAL</h2>
+        <p>SDN RAWABUNTU 03 SERPONG</p>
+
+        <form onsubmit="prosesLoginSiswa(event)">
+            <div class="input-group">
+                <label class="label">Nama Lengkap</label>
+                <input type="text" id="namaSiswa" class="input-field" placeholder="Ketik nama kamu..." required>
+            </div>
+            <div class="input-group">
+                <label class="label">Pilih Kelas</label>
+                <select id="kelasSiswa" class="input-field">
+                    <option value="1">Kelas 1</option>
+                    <option value="2">Kelas 2</option>
+                    <option value="3">Kelas 3</option>
+                    <option value="4">Kelas 4</option>
+                    <option value="5">Kelas 5</option>
+                    <option value="6">Kelas 6</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-masuk">MULAI BELAJAR 🚀</button>
+        </form>
+
+        <div class="admin-secret" title="Admin access hidden">SDN RB 03</div>
+    </div>
+
+    <script>
+        function prosesLoginSiswa(e) {
+            e.preventDefault();
+            
+            const nama = document.getElementById('namaSiswa').value;
+            const kelas = document.getElementById('kelasSiswa').value;
+            
+            if(nama.trim().length > 0) {
+                // Simpan data di browser siswa
+                localStorage.setItem('nama_siswa', nama);
+                localStorage.setItem('kelas_siswa', kelas);
+                
+                // Pastikan status admin bersih saat siswa masuk
+                localStorage.removeItem('status_user');
+                
+                // Langsung arahkan ke dashboard
+                window.location.href = "pages/dashboard.html";
+            }
+        }
+    </script>
+</body>
+</html>

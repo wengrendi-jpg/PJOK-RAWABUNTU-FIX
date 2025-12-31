@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard PJOK - SDN Rawabuntu 03</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* --- 1. SETUP BACKGROUND HIJAU MINT --- */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(180deg, #b2dfdb 0%, #e0f2f1 100%);
+            min-height: 100vh;
+            color: #333;
+            text-align: center;
+        }
+
+        /* --- 2. HEADER --- */
+        .header-container { padding: 40px 20px 20px; }
+
+        .logo-sekolah {
+            width: 100px;
+            height: auto;
+            margin-bottom: 15px;
+            border-radius: 50%;
+            background: white;
+            padding: 5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 { color: #004d40; font-weight: 800; font-size: 24px; margin: 5px 0; }
+        .greeting { color: #555; font-size: 14px; margin-bottom: 15px; }
+
+        .btn-logout {
+            background-color: #f44336; color: white; border: none;
+            padding: 8px 20px; border-radius: 5px; font-weight: bold;
+            font-size: 12px; cursor: pointer; text-decoration: none;
+            display: inline-block; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .btn-logout:hover { background-color: #d32f2f; }
+
+        /* --- 3. JUDUL SECTION --- */
+        .section-title-wrapper { margin: 30px 0; }
+        .section-title {
+            background-color: #cfd8dc; color: #37474f;
+            padding: 8px 20px; font-weight: 800; font-size: 18px;
+            display: inline-block; border-bottom: 3px solid #b0bec5;
+        }
+
+        /* --- 4. GRID KARTU KELAS --- */
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 20px 50px; }
+
+        .grid-menu {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 15px;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 180px; /* Sedikit lebih tinggi untuk ikon */
+            border-top: 5px solid transparent; /* Garis warna warni di atas */
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        /* GAYA UNTUK IKON OLAHRAGA (BESAR) */
+        .sport-icon {
+            font-size: 50px; /* Ukuran Besar */
+            margin-bottom: 15px;
+            filter: drop-shadow(0 4px 2px rgba(0,0,0,0.1));
+            transition: transform 0.2s;
+        }
+        .card:hover .sport-icon { transform: scale(1.1); }
+
+        .card h3 { margin: 0 0 10px; color: #00695c; font-size: 20px; font-weight: 800; }
+        .card p { margin: 0; font-size: 13px; color: #666; line-height: 1.5; }
+
+        /* WARNA GARIS ATAS KARTU (Biar Lebih Cantik) */
+        .c-1 { border-top-color: #ffca28; } /* Kuning */
+        .c-2 { border-top-color: #42a5f5; } /* Biru */
+        .c-3 { border-top-color: #ef5350; } /* Merah */
+        .c-4 { border-top-color: #66bb6a; } /* Hijau */
+        .c-5 { border-top-color: #ab47bc; } /* Ungu */
+        .c-6 { border-top-color: #ff7043; } /* Oranye */
+
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <img src="../logo_final.png" alt="Logo Sekolah" class="logo-sekolah">
+        
+        <h1>PJOK SDN Rawabuntu 03</h1>
+        <p class="greeting">Halo, <span id="nama_user" style="font-weight:bold;">Siswa</span>! Selamat Belajar PJOK.</p>
+        <a href="#" onclick="keluarAplikasi()" class="btn-logout">Keluar (Logout)</a>
+    </div>
+
+    <div class="section-title-wrapper">
+        <span class="section-title">Pilih Kelas Anda</span>
+    </div>
+
+    <div class="container">
+        <div class="grid-menu">
+            
+            <a href="kelas/materi-kelas-1.html" class="card c-1">
+                <div class="sport-icon">🏃</div>
+                <h3>Kelas 1</h3>
+                <p>Gerak Dasar Lokomotor, Non-Lokomotor, dan Manipulatif.</p>
+            </a>
+            
+            <a href="kelas/materi-kelas-2.html" class="card c-2">
+                <div class="sport-icon">🤸</div>
+                <h3>Kelas 2</h3>
+                <p>Variasi Gerak Dasar, Keseimbangan, dan Kelenturan.</p>
+            </a>
+
+            <a href="kelas/materi-kelas-3.html" class="card c-3">
+                <div class="sport-icon">⛹️</div>
+                <h3>Kelas 3</h3>
+                <p>Kombinasi Gerak, Senam Irama, dan Dasar Kebugaran.</p>
+            </a>
+
+            <a href="kelas/materi-kelas-4.html" class="card c-4">
+                <div class="sport-icon">🏸</div>
+                <h3>Kelas 4</h3>
+                <p>Permainan Bola Kecil (Kasti), Atletik, Beladiri, dan Kebugaran.</p>
+            </a>
+
+            <a href="kelas/materi-kelas-5.html" class="card c-5">
+                <div class="sport-icon">⚽</div>
+                <h3>Kelas 5</h3>
+                <p>Bola Besar, Kasti, Atletik, Senam, dan Kesehatan.</p>
+            </a>
+
+            <a href="kelas/materi-kelas-6.html" class="card c-6">
+                <div class="sport-icon">🏊</div>
+                <h3>Kelas 6</h3>
+                <p>Variasi & Kombinasi Lanjutan, Senam, Renang, dan Kesehatan.</p>
+            </a>
+
+        </div>
+    </div>
+
+    <script>
+        // LOGIKA LOGIN
+        const namaUser = localStorage.getItem('nama_siswa');
+        if (!namaUser) {
+            alert("Anda harus login dulu!");
+            window.location.href = "../index.html";
+        } else {
+            document.getElementById('nama_user').innerText = namaUser.toUpperCase();
+        }
+
+        function keluarAplikasi() {
+            if(confirm("Yakin ingin keluar dari aplikasi?")) {
+                localStorage.clear();
+                window.location.href = "../index.html";
+            }
+        }
+    </script>
+
+</body>
+</html>
