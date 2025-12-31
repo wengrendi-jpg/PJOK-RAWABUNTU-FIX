@@ -75,7 +75,6 @@
         <button class="btn btn-submit" onclick="kirimJawaban()">✅ KIRIM JAWABAN</button>
     </div>
 
-    <div id="loading-overlay"><h3>⏳ Sedang Mengirim...</h3></div>
     <div id="hasil-area">
         <h2>🎉 SELESAI!</h2>
         <p>Nilai Pilihan Ganda Kamu:</p>
@@ -86,16 +85,41 @@
 </div>
 
 <script>
-    // DATA SOAL HARUS SAMA DENGAN MATERI AGAR SINKRON
-    // (Bapak bisa copy paste const BANK_SOAL_DOWNLOAD dari file materi ke sini jika ingin update, 
-    // tapi ini saya isi sesuai standar yang terakhir)
+    // 1. BANK SOAL (Dilengkapi dengan Kunci Jawaban: ans)
+    // ans: 0 = A, 1 = B, 2 = C
     const BANK_SOAL = {
-        "A": { pg: [{q:"Berjalan adalah...",opt:["Lokomotor","Non","Diam"],ans:0}, {q:"Posisi badan...",opt:["Bungkuk","Tegak","Miring"],ans:1}], isian: [], essay: ["Apa itu lokomotor?"] },
-        "STS": { pg: [{q:"Gerak meniru...",opt:["Lokomotor","Non","Diam"],ans:0}], isian: ["Gerak memutar..."], essay: ["Sebutkan..."] },
-        "SAS": { pg: [{q:"Sikap duduk...",opt:["Tegak","Bungkuk","Tidur"],ans:0}], isian: ["Membaca sambil..."], essay: ["Bagaimana sikap..."] }
+        "A": { 
+            pg: [
+                {q:"Berjalan adalah gerakan berpindah tempat. Gerakan ini disebut …",opt:["Gerak lokomotor","Gerak non-lokomotor","Gerak diam"], ans:0}, 
+                {q:"Posisi badan saat berjalan harus …",opt:["Membungkuk","Tegak","Miring"], ans:1}, 
+                {q:"Berjalan melatih otot …",opt:["Tangan","Leher","Kaki"], ans:2}, 
+                {q:"Pandangan mata saat berjalan ke arah …",opt:["Bawah","Depan","Atas"], ans:1}, 
+                {q:"Lari lebih … daripada jalan.",opt:["Lambat","Cepat","Sama"], ans:1}
+            ], 
+            isian: [], essay: ["Apa itu gerak lokomotor?"] 
+        },
+        "STS": { 
+            pg: [
+                {q:"Gerak meniru hewan berjalan termasuk gerak …",opt:["Lokomotor","Non-lokomotor","Diam"], ans:0},
+                {q:"Gambar anak sedang melompat seperti katak. Ini meniru hewan …",opt:["Kucing","Katak","Burung"], ans:1},
+                {q:"Gerak berpindah tempat disebut …",opt:["Lokomotor","Non-lokomotor","Manipulatif"], ans:0},
+                {q:"Hewan yang bergerak dengan cara melompat adalah …",opt:["Kelinci","Ular","Ikan"], ans:0},
+                {q:"Gerak berjalan ke depan melatih otot …",opt:["Tangan","Kaki","Leher"], ans:1}
+            ],
+            isian: ["Gerakan memutar..."], essay: ["Sebutkan..."] 
+        },
+        "SAS": { 
+            pg: [
+                {q:"Sikap duduk yang benar adalah …",opt:["Membungkuk","Tegak","Tiduran"], ans:1}
+            ], 
+            isian: ["Mandi pakai..."], essay: ["Sebutkan alat kebersihan!"] 
+        }
     };
-    // (Note: Pastikan bank soal di sini lengkap seperti di file materi agar kuisnya penuh)
+    
+    // Copy soal ke bab lain agar tidak error
+    ['B','C','D','E','F','G','H'].forEach(bab => { if(!BANK_SOAL[bab]) BANK_SOAL[bab] = BANK_SOAL['A']; });
 
+    // 2. CONFIG FIREBASE
     const firebaseConfig = {
         apiKey: "AIzaSyD7FsbgyUF1jvDvcrb6wrWlEiQJUFZG3kE",
         authDomain: "pjok-sekolah-bapak-rendi.firebaseapp.com",
@@ -109,19 +133,17 @@
     let currentSoal = null;
 
     document.addEventListener('DOMContentLoaded', () => {
-        firebase.initializeApp(firebaseConfig);
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         database = firebase.database();
 
         const urlParams = new URLSearchParams(window.location.search);
         currentBab = urlParams.get('bab') || 'A';
         
-        // Cek jika bank soal belum lengkap, pakai default A
         if (!BANK_SOAL[currentBab]) BANK_SOAL[currentBab] = BANK_SOAL['A'];
         currentSoal = BANK_SOAL[currentBab];
 
         document.getElementById('judul-kuis').innerText = `Kuis PJOK Bab ${currentBab}`;
 
-        // AUTO FILL
         const savedNama = localStorage.getItem('siswa_nama');
         const savedKelas = localStorage.getItem('siswa_kelas');
         if(savedNama) document.getElementById('inputNama').value = savedNama;
@@ -162,18 +184,56 @@
             });
         }
         
-        // Render Isian & Essay mirip pola di atas...
-        // (Kode disingkat agar muat, logika sama persis)
-        
         container.innerHTML = html;
         window.scrollTo(0, 0);
     }
 
+    // --- FUNGSI PENTING: HITUNG NILAI & KIRIM KE FIREBASE ---
     window.kirimJawaban = function() {
-        if (!confirm("Kirim jawaban?")) return;
-        // Logika kirim ke Firebase...
-        document.getElementById('lembar-kuis').style.display = 'none';
-        document.getElementById('hasil-area').style.display = 'block';
+        if (!confirm("Yakin ingin mengirim jawaban?")) return;
+        
+        const btn = document.querySelector('.btn-submit');
+        btn.innerHTML = "⏳ Mengirim...";
+        btn.disabled = true;
+
+        let skor = 0;
+        let benar = 0;
+        const totalSoal = currentSoal.pg ? currentSoal.pg.length : 0;
+
+        // 1. Hitung Nilai PG
+        if (totalSoal > 0) {
+            currentSoal.pg.forEach((item, index) => {
+                const radios = document.getElementsByName(`pg_${index}`);
+                for(let r of radios) {
+                    if(r.checked && parseInt(r.value) === item.ans) {
+                        benar++;
+                    }
+                }
+            });
+            skor = Math.round((benar / totalSoal) * 100);
+        }
+
+        // 2. Siapkan Data
+        const dataSiswa = {
+            nama: localStorage.getItem('siswa_nama'),
+            kelas: localStorage.getItem('siswa_kelas'),
+            nilai_pg: skor,
+            waktu: new Date().toLocaleString()
+        };
+
+        // 3. Kirim ke Firebase (INILAH KUNCINYA)
+        database.ref(`hasil_kuis/kelas_1/${currentBab}`).push(dataSiswa)
+            .then(() => {
+                // Sukses
+                document.getElementById('lembar-kuis').style.display = 'none';
+                document.getElementById('hasil-area').style.display = 'block';
+                document.getElementById('skor-akhir').innerText = skor;
+            })
+            .catch((error) => {
+                alert("Gagal mengirim nilai: " + error.message);
+                btn.innerHTML = "✅ KIRIM JAWABAN";
+                btn.disabled = false;
+            });
     };
 </script>
 </body>
