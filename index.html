@@ -3,82 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PJOK Digital - SDN Rawabuntu 03</title>
+    <title>Login Siswa - PJOK SDN Rawabuntu 03</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
     <style>
-        body { margin: 0; padding: 0; font-family: 'Nunito', sans-serif; background: #e3f2fd; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-        .box { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 350px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        body { 
+            font-family: 'Nunito', sans-serif; 
+            background: #e3f2fd; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            padding: 20px;
+        }
         
-        .logo { width: 100px; margin-bottom: 15px; display: block; margin-left: auto; margin-right: auto; }
-        .img-error { color: red; font-size: 11px; border: 1px dashed red; padding: 5px; display: none; margin-bottom: 10px;}
-
-        h2 { color: #1565c0; margin: 0 0 5px; font-size: 22px; font-weight: 800; }
-        p { color: #666; font-size: 14px; margin-bottom: 25px; line-height: 1.4; }
-
-        .input-group { margin-bottom: 15px; text-align: left; }
-        .label { font-size: 12px; font-weight: bold; color: #555; margin-left: 5px; }
-        .input-field { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; box-sizing: border-box; margin-top: 5px; font-size: 14px; font-family: 'Nunito', sans-serif; }
+        .login-card { 
+            background: white; 
+            padding: 40px 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            text-align: center; 
+            width: 100%; 
+            max-width: 400px; 
+            border-top: 5px solid #1565c0;
+        }
         
-        .btn-masuk { width: 100%; padding: 12px; border: none; border-radius: 30px; font-weight: 800; cursor: pointer; font-size: 15px; margin-top: 5px; transition: 0.2s; background: #1976d2; color: white; box-shadow: 0 4px 10px rgba(25, 118, 210, 0.3); }
-        .btn-masuk:active { transform: scale(0.98); }
+        /* LOGO SEKOLAH */
+        .logo-img {
+            width: 100px;
+            height: auto;
+            margin-bottom: 15px;
+        }
 
-        /* Area rahasia kecil di pojok bawah untuk Bapak (Opsional) */
-        .admin-secret { margin-top: 20px; font-size: 10px; color: #e3f2fd; cursor: default; }
+        h2 { color: #1565c0; margin: 0 0 5px; font-weight: 800; }
+        p { color: #666; margin: 0 0 30px; font-size: 14px; }
+        
+        .form-group { margin-bottom: 20px; text-align: left; }
+        label { display: block; font-weight: 700; margin-bottom: 8px; color: #333; }
+        
+        input, select { 
+            width: 100%; 
+            padding: 12px 15px; 
+            border: 2px solid #ddd; 
+            border-radius: 10px; 
+            box-sizing: border-box; 
+            font-family: inherit; 
+            font-size: 15px;
+            transition: 0.3s;
+            background: #fafafa;
+        }
+        
+        input:focus, select:focus { 
+            border-color: #29b6f6; 
+            outline: none; 
+            background: #fff;
+        }
+        
+        .btn-login { 
+            width: 100%; 
+            padding: 14px; 
+            background: linear-gradient(to right, #1565c0, #42a5f5); 
+            color: white; 
+            border: none; 
+            border-radius: 50px; 
+            font-weight: 800; 
+            font-size: 16px; 
+            cursor: pointer; 
+            transition: 0.3s; 
+            margin-top: 10px; 
+            box-shadow: 0 4px 10px rgba(21, 101, 192, 0.3);
+        }
+        
+        .btn-login:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(21, 101, 192, 0.4);
+        }
+
+        .error-msg { 
+            color: #d32f2f; 
+            font-size: 13px; 
+            margin-top: 15px; 
+            display: none; 
+            background: #ffebee;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
-    <div class="box">
-        <img src="logo_final.png" alt="Logo Sekolah" class="logo" onerror="document.getElementById('pesan-error').style.display='block'; this.style.display='none'">
+    <div class="login-card">
+        <img src="logo_final.png" alt="Logo Sekolah" class="logo-img" onerror="this.style.display='none'; document.getElementById('alt-logo').style.display='block'">
+        <div id="alt-logo" style="font-size:50px; margin-bottom:10px; display:none;">⚽</div>
         
-        <div id="pesan-error" class="img-error">
-            ⚠️ <b>GAMBAR TIDAK DITEMUKAN</b><br>Cek file "logo_final.png"
+        <h2>PJOK RAWABUNTU 03</h2>
+        <p>Login Siswa untuk Mulai Belajar</p>
+
+        <div class="form-group">
+            <label>Nama Lengkap Siswa</label>
+            <input type="text" id="nama" placeholder="Ketik nama kamu di sini..." autocomplete="off">
         </div>
-
-        <h2>PJOK DIGITAL</h2>
-        <p>SDN RAWABUNTU 03 SERPONG</p>
-
-        <form onsubmit="prosesLoginSiswa(event)">
-            <div class="input-group">
-                <label class="label">Nama Lengkap</label>
-                <input type="text" id="namaSiswa" class="input-field" placeholder="Ketik nama kamu..." required>
-            </div>
-            <div class="input-group">
-                <label class="label">Pilih Kelas</label>
-                <select id="kelasSiswa" class="input-field">
-                    <option value="1">Kelas 1</option>
-                    <option value="2">Kelas 2</option>
-                    <option value="3">Kelas 3</option>
-                    <option value="4">Kelas 4</option>
-                    <option value="5">Kelas 5</option>
-                    <option value="6">Kelas 6</option>
-                </select>
-            </div>
-            <button type="submit" class="btn-masuk">MULAI BELAJAR 🚀</button>
-        </form>
-
-        <div class="admin-secret" title="Admin access hidden">SDN RB 03</div>
+        
+        <div class="form-group">
+            <label>Pilih Kelas</label>
+            <select id="kelas">
+                <option value="">-- Pilih Kelas Kamu --</option>
+                <option value="1A">Kelas 1 A</option>
+                <option value="1B">Kelas 1 B</option>
+                <option value="1C">Kelas 1 C</option>
+                <option value="2A">Kelas 2 A</option>
+                <option value="2B">Kelas 2 B</option>
+                <option value="2C">Kelas 2 C</option>
+                <option value="3A">Kelas 3 A</option>
+                <option value="3B">Kelas 3 B</option>
+                <option value="3C">Kelas 3 C</option>
+                <option value="4A">Kelas 4 A</option>
+                <option value="4B">Kelas 4 B</option>
+                <option value="4C">Kelas 4 C</option>
+                <option value="5A">Kelas 5 A</option>
+                <option value="5B">Kelas 5 B</option>
+                <option value="5C">Kelas 5 C</option>
+                <option value="6A">Kelas 6 A</option>
+                <option value="6B">Kelas 6 B</option>
+                <option value="6C">Kelas 6 C</option>
+            </select>
+        </div>
+        
+        <button class="btn-login" onclick="masukSiswa()">🚀 MASUK SEKARANG</button>
+        <div id="error-msg" class="error-msg">⚠️ Mohon isi Nama dan Kelas!</div>
+        
+        <div style="margin-top: 20px; font-size: 12px;">
+            <a href="admin-kelas1.html" style="color: #bbb; text-decoration: none;">Login Guru</a>
+        </div>
     </div>
 
     <script>
-        function prosesLoginSiswa(e) {
-            e.preventDefault();
-            
-            const nama = document.getElementById('namaSiswa').value;
-            const kelas = document.getElementById('kelasSiswa').value;
-            
-            if(nama.trim().length > 0) {
-                // Simpan data di browser siswa
-                localStorage.setItem('nama_siswa', nama);
-                localStorage.setItem('kelas_siswa', kelas);
-                
-                // Pastikan status admin bersih saat siswa masuk
-                localStorage.removeItem('status_user');
-                
-                // Langsung arahkan ke dashboard
-                window.location.href = "pages/dashboard.html";
+        // Cek jika siswa sudah pernah login, langsung arahkan ke dashboard
+        if(localStorage.getItem('siswa_nama') && localStorage.getItem('siswa_kelas')) {
+            // window.location.href = 'dashboard.html'; // Aktifkan baris ini jika ingin auto-login
+        }
+
+        function masukSiswa() {
+            const nama = document.getElementById('nama').value.trim();
+            const kelas = document.getElementById('kelas').value;
+            const err = document.getElementById('error-msg');
+
+            // Validasi Sederhana
+            if(!nama || !kelas) {
+                err.style.display = 'block';
+                return;
             }
+
+            // Simpan data siswa ke LocalStorage (Browser)
+            // Data ini nanti akan otomatis terbaca di halaman Kuis
+            localStorage.setItem('siswa_nama', nama);
+            localStorage.setItem('siswa_kelas', kelas);
+            localStorage.setItem('siswa_sekolah', 'SDN Rawabuntu 03');
+
+            // Efek Loading sebentar agar terlihat proses
+            const btn = document.querySelector('.btn-login');
+            btn.innerHTML = "⏳ Sedang Memuat...";
+            btn.style.background = "#ccc";
+            
+            setTimeout(() => {
+                // Pindah ke Halaman Dashboard (Menu Kelas)
+                window.location.href = "dashboard.html";
+            }, 800);
         }
     </script>
+
 </body>
 </html>

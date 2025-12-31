@@ -3,175 +3,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard PJOK - SDN Rawabuntu 03</title>
+    <title>Dashboard PJOK - Pilih Kelas</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
     <style>
-        /* --- 1. SETUP BACKGROUND HIJAU MINT --- */
         body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #e0f7fa;
             margin: 0;
             padding: 0;
-            font-family: 'Nunito', sans-serif;
-            background: linear-gradient(180deg, #b2dfdb 0%, #e0f2f1 100%);
             min-height: 100vh;
-            color: #333;
+        }
+
+        /* NAVBAR ATAS */
+        .navbar {
+            background: #ffffff;
+            padding: 10px 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            color: #006064;
+            font-size: 18px;
+        }
+
+        .brand img {
+            height: 40px;
+        }
+
+        .btn-logout {
+            background: #d32f2f;
+            color: white;
+            text-decoration: none;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 14px;
+            border: 2px solid #d32f2f;
+            transition: 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: white;
+            color: #d32f2f;
+        }
+
+        /* CONTAINER UTAMA */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
             text-align: center;
         }
 
-        /* --- 2. HEADER --- */
-        .header-container { padding: 40px 20px 20px; }
-
-        .logo-sekolah {
-            width: 100px;
-            height: auto;
-            margin-bottom: 15px;
-            border-radius: 50%;
-            background: white;
-            padding: 5px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        /* HEADER JUDUL DENGAN BOLA */
+        .header-section {
+            margin-bottom: 40px;
+        }
+        
+        .header-section h1 {
+            color: #00838f;
+            margin: 10px 0;
+            font-size: 28px;
+            text-transform: uppercase;
+            text-shadow: 1px 1px 0px #fff;
         }
 
-        h1 { color: #004d40; font-weight: 800; font-size: 24px; margin: 5px 0; }
-        .greeting { color: #555; font-size: 14px; margin-bottom: 15px; }
-
-        .btn-logout {
-            background-color: #f44336; color: white; border: none;
-            padding: 8px 20px; border-radius: 5px; font-weight: bold;
-            font-size: 12px; cursor: pointer; text-decoration: none;
-            display: inline-block; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        .btn-logout:hover { background-color: #d32f2f; }
-
-        /* --- 3. JUDUL SECTION --- */
-        .section-title-wrapper { margin: 30px 0; }
-        .section-title {
-            background-color: #cfd8dc; color: #37474f;
-            padding: 8px 20px; font-weight: 800; font-size: 18px;
-            display: inline-block; border-bottom: 3px solid #b0bec5;
+        .bola-animasi {
+            font-size: 60px;
+            display: inline-block;
+            animation: mantul 1.5s infinite ease-in-out;
         }
 
-        /* --- 4. GRID KARTU KELAS --- */
-        .container { max-width: 1000px; margin: 0 auto; padding: 0 20px 50px; }
+        @keyframes mantul {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
 
-        .grid-menu {
+        /* GRID MENU KELAS */
+        .menu-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
         }
 
+        /* KARTU KELAS */
         .card {
             background: white;
-            padding: 30px 20px;
-            border-radius: 15px;
+            border-radius: 20px;
+            padding: 25px;
             text-decoration: none;
-            color: inherit;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            transition: transform 0.2s, box-shadow 0.2s;
+            color: #333;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: 0.3s;
+            border-bottom: 5px solid #ddd;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            min-height: 180px; /* Sedikit lebih tinggi untuk ikon */
-            border-top: 5px solid transparent; /* Garis warna warni di atas */
+            position: relative;
+            overflow: hidden;
         }
 
         .card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
 
-        /* GAYA UNTUK IKON OLAHRAGA (BESAR) */
-        .sport-icon {
-            font-size: 50px; /* Ukuran Besar */
+        .card-icon {
+            font-size: 50px;
             margin-bottom: 15px;
-            filter: drop-shadow(0 4px 2px rgba(0,0,0,0.1));
-            transition: transform 0.2s;
+            background: #f5f5f5;
+            width: 90px;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 3px solid transparent;
         }
-        .card:hover .sport-icon { transform: scale(1.1); }
 
-        .card h3 { margin: 0 0 10px; color: #00695c; font-size: 20px; font-weight: 800; }
-        .card p { margin: 0; font-size: 13px; color: #666; line-height: 1.5; }
+        .card h3 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 800;
+        }
 
-        /* WARNA GARIS ATAS KARTU (Biar Lebih Cantik) */
-        .c-1 { border-top-color: #ffca28; } /* Kuning */
-        .c-2 { border-top-color: #42a5f5; } /* Biru */
-        .c-3 { border-top-color: #ef5350; } /* Merah */
-        .c-4 { border-top-color: #66bb6a; } /* Hijau */
-        .c-5 { border-top-color: #ab47bc; } /* Ungu */
-        .c-6 { border-top-color: #ff7043; } /* Oranye */
+        .card p {
+            margin: 5px 0 0;
+            font-size: 14px;
+            color: #777;
+        }
 
+        /* WARNA-WARNI KELAS */
+        .k1 { border-color: #e91e63; color: #e91e63; }
+        .k1 .card-icon { color: #e91e63; border-color: #e91e63; background: #fce4ec; }
+
+        .k2 { border-color: #9c27b0; color: #9c27b0; }
+        .k2 .card-icon { color: #9c27b0; border-color: #9c27b0; background: #f3e5f5; }
+
+        .k3 { border-color: #673ab7; color: #673ab7; }
+        .k3 .card-icon { color: #673ab7; border-color: #673ab7; background: #ede7f6; }
+
+        .k4 { border-color: #2196f3; color: #2196f3; }
+        .k4 .card-icon { color: #2196f3; border-color: #2196f3; background: #e3f2fd; }
+
+        .k5 { border-color: #009688; color: #009688; }
+        .k5 .card-icon { color: #009688; border-color: #009688; background: #e0f2f1; }
+
+        .k6 { border-color: #ff9800; color: #ff9800; }
+        .k6 .card-icon { color: #ff9800; border-color: #ff9800; background: #fff3e0; }
+
+        @media (max-width: 600px) {
+            .menu-grid { grid-template-columns: 1fr; }
+            .card { flex-direction: row; text-align: left; padding: 15px; }
+            .card-icon { width: 60px; height: 60px; font-size: 30px; margin-bottom: 0; margin-right: 15px; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="header-container">
-        <img src="../logo_final.png" alt="Logo Sekolah" class="logo-sekolah">
-        
-        <h1>PJOK SDN Rawabuntu 03</h1>
-        <p class="greeting">Halo, <span id="nama_user" style="font-weight:bold;">Siswa</span>! Selamat Belajar PJOK.</p>
-        <a href="#" onclick="keluarAplikasi()" class="btn-logout">Keluar (Logout)</a>
-    </div>
-
-    <div class="section-title-wrapper">
-        <span class="section-title">Pilih Kelas Anda</span>
+    <div class="navbar">
+        <div class="brand">
+            <img src="logo_final.png" alt="Logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/33/33736.png'">
+            SDN RAWABUNTU 03
+        </div>
+        <a href="index.html" class="btn-logout" onclick="logoutSiswa()">🚪 Logout</a>
     </div>
 
     <div class="container">
-        <div class="grid-menu">
-            
-            <a href="kelas/materi-kelas-1.html" class="card c-1">
-                <div class="sport-icon">🏃</div>
-                <h3>Kelas 1</h3>
-                <p>Gerak Dasar Lokomotor, Non-Lokomotor, dan Manipulatif.</p>
-            </a>
-            
-            <a href="kelas/materi-kelas-2.html" class="card c-2">
-                <div class="sport-icon">🤸</div>
-                <h3>Kelas 2</h3>
-                <p>Variasi Gerak Dasar, Keseimbangan, dan Kelenturan.</p>
-            </a>
-
-            <a href="kelas/materi-kelas-3.html" class="card c-3">
-                <div class="sport-icon">⛹️</div>
-                <h3>Kelas 3</h3>
-                <p>Kombinasi Gerak, Senam Irama, dan Dasar Kebugaran.</p>
-            </a>
-
-            <a href="kelas/materi-kelas-4.html" class="card c-4">
-                <div class="sport-icon">🏸</div>
-                <h3>Kelas 4</h3>
-                <p>Permainan Bola Kecil (Kasti), Atletik, Beladiri, dan Kebugaran.</p>
-            </a>
-
-            <a href="kelas/materi-kelas-5.html" class="card c-5">
-                <div class="sport-icon">⚽</div>
-                <h3>Kelas 5</h3>
-                <p>Bola Besar, Kasti, Atletik, Senam, dan Kesehatan.</p>
-            </a>
-
-            <a href="kelas/materi-kelas-6.html" class="card c-6">
-                <div class="sport-icon">🏊</div>
-                <h3>Kelas 6</h3>
-                <p>Variasi & Kombinasi Lanjutan, Senam, Renang, dan Kesehatan.</p>
-            </a>
-
+        
+        <div class="header-section">
+            <div class="bola-animasi">⚽</div>
+            <h1>Ruang Belajar PJOK</h1>
+            <p>Silakan pilih kelas kamu di bawah ini:</p>
         </div>
+
+        <div class="menu-grid">
+            <a href="materi-kelas-1.html" class="card k1">
+                <div class="card-icon">1️⃣</div>
+                <div>
+                    <h3>KELAS 1</h3>
+                    <p>Gerak Dasar & Bermain</p>
+                </div>
+            </a>
+
+            <a href="#" onclick="alert('Materi belum tersedia')" class="card k2">
+                <div class="card-icon">2️⃣</div>
+                <div>
+                    <h3>KELAS 2</h3>
+                    <p>Variasi Gerak Dasar</p>
+                </div>
+            </a>
+
+            <a href="#" onclick="alert('Materi belum tersedia')" class="card k3">
+                <div class="card-icon">3️⃣</div>
+                <div>
+                    <h3>KELAS 3</h3>
+                    <p>Kombinasi Gerak</p>
+                </div>
+            </a>
+
+            <a href="#" onclick="alert('Materi belum tersedia')" class="card k4">
+                <div class="card-icon">4️⃣</div>
+                <div>
+                    <h3>KELAS 4</h3>
+                    <p>Permainan Bola Besar</p>
+                </div>
+            </a>
+
+            <a href="#" onclick="alert('Materi belum tersedia')" class="card k5">
+                <div class="card-icon">5️⃣</div>
+                <div>
+                    <h3>KELAS 5</h3>
+                    <p>Kombinasi & Variasi</p>
+                </div>
+            </a>
+
+            <a href="#" onclick="alert('Materi belum tersedia')" class="card k6">
+                <div class="card-icon">6️⃣</div>
+                <div>
+                    <h3>KELAS 6</h3>
+                    <p>Permainan Lanjutan</p>
+                </div>
+            </a>
+        </div>
+
     </div>
 
     <script>
-        // LOGIKA LOGIN
-        const namaUser = localStorage.getItem('nama_siswa');
-        if (!namaUser) {
-            alert("Anda harus login dulu!");
-            window.location.href = "../index.html";
-        } else {
-            document.getElementById('nama_user').innerText = namaUser.toUpperCase();
-        }
-
-        function keluarAplikasi() {
-            if(confirm("Yakin ingin keluar dari aplikasi?")) {
-                localStorage.clear();
-                window.location.href = "../index.html";
-            }
+        function logoutSiswa() {
+            localStorage.removeItem('siswa_nama');
+            localStorage.removeItem('siswa_kelas');
+            localStorage.removeItem('siswa_sekolah');
         }
     </script>
 
