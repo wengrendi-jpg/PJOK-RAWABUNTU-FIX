@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Materi PJOK Kelas 4 SD</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="bank_soal_4.js"></script>
+
+    <style>
+        /* TEMA HIJAU SEGAR (KHAS KELAS 4) */
+        body { font-family: 'Nunito', sans-serif; background-color: #e8f5e9; margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; color: #333; }
+        
+        /* HEADER ATAS */
+        .header-top { background: #fff; padding: 15px 30px; border-bottom: 4px solid #2e7d32; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1000; }
+        .header-top h1 { margin: 0; color: #1b5e20; font-size: 22px; font-weight: 800; text-transform: uppercase; }
+        .back-btn { display: inline-flex; align-items: center; gap: 8px; background-color: #2e7d32; color: white; text-decoration: none; font-weight: 700; font-size: 13px; padding: 8px 20px; border-radius: 50px; transition: 0.3s; }
+        .back-btn:hover { background-color: #1b5e20; }
+        
+        /* LAYOUT UTAMA */
+        .main-container { width: 95%; max-width: 1250px; margin: 30px auto; padding: 0; display: flex; gap: 25px; box-sizing: border-box; flex: 1; }
+        
+        /* SIDEBAR (MENU KIRI) */
+        .sidebar { width: 280px; flex-shrink: 0; background: #fff; padding: 25px; border-radius: 12px; border: 1px solid #c8e6c9; position: sticky; top: 100px; height: fit-content; }
+        
+        .logo-area { text-align: center; margin-bottom: 25px; border-bottom: 2px dashed #a5d6a7; padding-bottom: 20px; }
+        .logo-area img { width: 80px !important; height: 80px !important; object-fit: cover; border-radius: 50%; border: 4px solid #2e7d32; padding: 4px; display: inline-block; }
+        
+        .menu-label { font-weight: 900; color: #2e7d32; margin: 25px 0 10px 0; font-size: 0.85em; text-transform: uppercase; padding-left: 10px; border-left: 4px solid #2e7d32; }
+        .nav-btn { display: block; width: 100%; padding: 12px 18px; margin-bottom: 8px; background: #e8f5e9; border: none; border-radius: 10px; text-align: left; cursor: pointer; color: #1b5e20; font-size: 14px; font-weight: 700; transition: 0.2s; font-family: 'Nunito', sans-serif; }
+        .nav-btn:hover { transform: translateX(5px); background: #c8e6c9; }
+        .nav-btn.active { background: linear-gradient(135deg, #43a047, #2e7d32); color: white; box-shadow: 0 4px 10px rgba(46, 125, 50, 0.3); }
+
+        /* KONTEN KANAN */
+        .content-area { flex-grow: 1; background: #fff; padding: 40px; border-radius: 12px; border: 1px solid #c8e6c9; min-height: 800px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
+
+        h2 { border-bottom: 3px solid #2e7d32; color: #1b5e20; padding-bottom: 15px; margin-top: 0; font-size: 24px; font-weight: 800; }
+        
+        /* VIDEO WRAPPER */
+        .video-container { width: 100%; aspect-ratio: 16/9; background: #000; margin-bottom: 30px; border-radius: 12px; border: 4px solid #66bb6a; overflow: hidden; }
+        iframe { width: 100%; height: 100%; border: none; }
+        
+        /* DESKRIPSI MATERI */
+        .info-card { background: #e8f5e9; border: 1px solid #c8e6c9; border-left: 5px solid #2e7d32; padding: 20px; border-radius: 8px; margin-bottom: 30px; line-height: 1.6; font-size: 15px; text-align: justify; }
+        .info-card h3 { margin: 0 0 10px; color: #1b5e20; font-size: 16px; font-weight: 800; }
+
+        /* TAMPILAN UJIAN */
+        .exam-header { text-align: center; background: #fff3e0; border: 2px solid #ff9800; padding: 30px; border-radius: 12px; margin-bottom: 30px; }
+        .exam-title { font-size: 22px; font-weight: 900; color: #e65100; margin-bottom: 10px; text-transform: uppercase; }
+        .exam-desc { font-size: 15px; color: #555; max-width: 700px; margin: 0 auto 20px; line-height: 1.6; }
+        .badge { display: inline-block; background: #fff; border: 1px solid #ff9800; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; color: #e65100; margin: 0 5px; }
+
+        /* TOMBOL AKSI */
+        .btn-group { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 25px; }
+        .action-btn { flex: 1; padding: 14px; border: none; border-radius: 8px; cursor: pointer; font-weight: 800; font-size: 14px; color: white; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-family: 'Nunito', sans-serif; }
+        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
+        
+        .btn-quiz { background: linear-gradient(135deg, #ff8f00, #ef6c00); } /* Orange */
+        .btn-download { background: linear-gradient(135deg, #1e88e5, #1565c0); } /* Biru */
+        .btn-kisi { background: linear-gradient(135deg, #43a047, #2e7d32); } /* Hijau */
+        
+        .action-btn:disabled { background: #e0e0e0; color: #999; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        /* KISI-KISI & PDF */
+        .kisi-container { display: none; margin-top: 25px; background: #fafafa; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .kisi-table { width: 100%; border-collapse: collapse; font-size: 13px; font-family: 'Times New Roman', serif; }
+        .kisi-table th { background: #c8e6c9; padding: 10px; border: 1px solid #a5d6a7; color: #1b5e20; text-align: center; vertical-align: middle; }
+        .kisi-table td { padding: 8px; border: 1px solid #ccc; vertical-align: top; }
+        .kisi-table tr:nth-child(even) { background-color: #e8f5e9; }
+        
+        #pdf-overlay { position: absolute; top: 0; left: 0; z-index: -9999; visibility: hidden; width: 790px; background: white; }
+        #pdf-content { width: 100%; background: white; color: black; font-family: Arial, sans-serif; font-size: 11pt; line-height: 1.3; padding: 0; }
+        .pdf-header-table { width: 100%; border-bottom: 3px double #000; margin-bottom: 10px; }
+        .pdf-section { margin-top: 15px; font-weight: bold; }
+        .pdf-item { margin-bottom: 8px; page-break-inside: avoid !important; }
+
+        @media (max-width: 768px) { .main-container { flex-direction: column; margin: 15px; } .sidebar { width: 100%; } .header-top { flex-direction: column; gap: 10px; } }
+    </style>
+</head>
+<body>
+
+    <div class="header-top">
+        <div class="header-left"><a href="dashboard.html" class="back-btn">⬅ Dashboard</a></div>
+        <div class="header-center"><h1>MATERI PJOK KELAS 4 SD</h1></div>
+        <div class="header-right"></div>
+    </div>
+
+    <div class="main-container">
+        
+        <aside class="sidebar">
+            <div class="logo-area">
+                <img src="logo_final.png" alt="Logo" onerror="this.style.display='none'">
+                <p style="margin:10px 0 0 0; font-weight:800; color:#555; font-size:13px;">SD NEGERI 1 CERDAS</p>
+            </div>
+            
+            <div class="menu-label">SEMESTER 1 (GANJIL)</div>
+            <button id="nav-a" class="nav-btn active" onclick="bukaHalaman('a', this)">A. Bola Besar</button>
+            <button id="nav-b" class="nav-btn" onclick="bukaHalaman('b', this)">B. Bola Kecil (Kasti)</button>
+            <button id="nav-c" class="nav-btn" onclick="bukaHalaman('c', this)">C. Atletik</button>
+            <button id="nav-d" class="nav-btn" onclick="bukaHalaman('d', this)">D. Bela Diri (Silat)</button>
+            <button id="nav-sts" class="nav-btn" style="border-left:4px solid #ff9800;" onclick="bukaHalaman('sts', this)">📝 UJIAN STS (PTS)</button>
+            
+            <div class="menu-label">SEMESTER 2 (GENAP)</div>
+            <button id="nav-e" class="nav-btn" onclick="bukaHalaman('e', this)">E. Kebugaran Jasmani</button>
+            <button id="nav-f" class="nav-btn" onclick="bukaHalaman('f', this)">F. Senam Lantai</button>
+            <button id="nav-g" class="nav-btn" onclick="bukaHalaman('g', this)">G. Gerak Berirama</button>
+            <button id="nav-h" class="nav-btn" onclick="bukaHalaman('h', this)">H. Renang & Cedera</button>
+            <button id="nav-sas" class="nav-btn" style="border-left:4px solid #ff9800;" onclick="bukaHalaman('sas', this)">🏆 UJIAN SAS (PAS)</button>
+        </aside>
+
+        <main class="content-area">
+            <div id="content-dynamic"></div>
+        </main>
+    </div>
+    
+    <div id="conn-status" style="position:fixed;bottom:10px;right:10px;background:#333;color:white;padding:5px 15px;border-radius:20px;font-size:11px;">Status: Menghubungkan...</div>
+    <div id="pdf-overlay"><div id="pdf-content"></div></div>
+
+    <script>
+       // ==========================================
+        // 1. DATA MATERI KELAS 4 (VIDEO SUDAH DIPERBAIKI)
+        // ==========================================
+        const dataMateri = {
+            'a': { 
+                title: "A. Permainan Bola Besar", 
+                vid: "Xw4KE6pXzUw", // Video Sepak Bola Kelas 4
+                desc: "<b>RANGKUMAN LENGKAP:</b><br><br>Permainan bola besar meliputi tiga cabang olahraga dengan teknik dasar berbeda:<br><br><b>Sepak Bola:</b><br>1. <b>Menendang bola:</b> Menggunakan kaki bagian dalam, luar, dan punggung kaki untuk operan dan tendangan ke gawang<br>2. <b>Menghentikan bola:</b> Mengontrol bola yang datang menggunakan kaki, paha, atau dada<br>3. <b>Menggiring bola:</b> Kontrol bola sambil berlari dengan variasi kecepatan dan arah<br><br><b>Bola Voli:</b><br>1. <b>Passing bawah:</b> Teknik dasar menerima servis dengan lengan dijepit dan pergelangan tangan kaku<br>2. <b>Sikap siap:</b> Posisi badan rendah, lutut ditekuk, pandangan ke arah bola<br><br><b>Bola Basket:</b><br>1. <b>Menggiring bola:</b> Dribble dengan kontrol jari, tidak telapak tangan<br>2. <b>Operan dasar:</b> Chest pass (operan dada) dan bounce pass (operan pantul)<br><br>Semua permainan mengembangkan kerja sama tim, strategi sederhana, dan sportivitas." 
+            },
+            'b': { 
+                title: "B. Permainan Bola Kecil (Kasti)", 
+                vid: "ea5cKEeQ0h0", // Video Kasti Kelas 4
+                desc: "<b>RANGKUMAN LENGKAP:</b><br><br>Permainan kasti/rounders mengembangkan keterampilan manipulatif kompleks:<br><br><b>Teknik Melempar Bola:</b><br>1. <b>Lemparan melambung:</b> Untuk operan jarak jauh, bola membentuk parabola tinggi<br>2. <b>Lemparan mendatar:</b> Untuk operan cepat dan lurus ke rekan satu tim<br>3. <b>Lemparan menyusur tanah:</b> Untuk mengelabui lawan di permainan kasti<br><br><b>Teknik Menangkap Bola:</b><br>1. Bola lambung: tangan membentuk keranjang, mata mengikuti bola<br>2. Bola mendatar: siap di depan dada, tangan menyesuaikan<br>3. Bola menyusur tanah: jongkok dengan tangan siap di bawah<br><br><b>Teknik Memukul Bola:</b><br>1. Pegangan pemukul yang benar (grip)<br>2. Sikap berdiri menghadap pelempar (stance)<br>3. Ayunan pemukul dengan timing yang tepat untuk mengenai bola<br><br>Permainan ini melatih ketepatan, kecepatan reaksi, dan kerjasama tim yang solid." 
+            },
+            'c': { 
+                title: "C. Atletik (Jalan, Lari, Lompat)", 
+                vid: "poR1bqpfKpc", // Video Atletik Jalan & Lari
+                desc: "<b>RANGKUMAN LENGKAP:</b><br><br>Cabang atletik dasar dengan teknik yang lebih terstruktur:<br><br><b>Jalan Cepat:</b><br>1. Selalu satu kaki menyentuh tanah (tidak ada fase melayang)<br>2. Lutut diluruskan saat menapak, badan sedikit condong ke depan<br>3. Ayunan lengan aktif untuk menjaga keseimbangan dan momentum<br><br><b>Lari Jarak Pendek (Sprint):</b><br>1. <b>Start jongkok:</b> Posisi 'siap', 'siap-siap', 'ya' dengan tolakan kuat<br>2. Fase lari: akselerasi, maksimum speed, dan maintenance<br>3. Finish: membusungkan dada atau condong ke depan saat garis finish<br><br><b>Lompat Jauh:</b><br>1. <b>Awalan:</b> Lari ancang-ancang dengan kecepatan bertahap<br>2. <b>Tolakan:</b> Menggunakan kaki terkuat pada papan tolak<br>3. <b>Melayang:</b> Sikap jongkok di udara (gaya jongkok)<br>4. <b>Mendarat:</b> Kedua kaki bersama, badan condong ke depan, tangan ke depan<br><br>Latihan mengembangkan power, kecepatan, dan teknik dasar atletik." 
+            },
+            'd': { 
+                title: "D. Bela Diri (Pencak Silat)", 
+                vid: "pJUL-2at0Vw",  // Video Pencak Silat
+                desc: "<b>RANGKUMAN LENGKAP:</b><br><br>Pengenalan seni bela diri tradisional Indonesia dengan teknik dasar:<br><br><b>Sikap Dasar:</b><br>1. <b>Sikap pasang:</b> Posisi siap dengan kewaspadaan tinggi<br>2. <b>Kuda-kuda:</b> Kuda-kuda depan, belakang, tengah, dan samping untuk keseimbangan<br><br><b>Gerak Dasar:</b><br>1. <b>Pola langkah:</b> Langkah segitiga, segiempat, dan huruf U<br>2. <b>Pukulan:</b> Pukulan lurus (depan), bandul, dan sangga<br>3. <b>Tangkisan:</b> Tangkisan dalam, luar, atas, dan bawah<br><br><b>Prinsip Dasar:</b><br>1. Selalu diawali dan diakhiri dengan salam (sembah)<br>2. Fokus pada disiplin dan pengendalian diri, bukan kekerasan<br>3. Melatih kewaspadaan, ketangkasan, dan percaya diri<br><br>Pencak silat tidak hanya melatih fisik tetapi juga mental dan karakter." 
+            },
+            'e': { 
+                title: "E. Kebugaran Jasmani", 
+                vid: "GdDyudaCGX8", // Video Kebugaran (Kekuatan)
+                desc: "<b>RANGKUMAN LENGKAP:</b><br><br>Program kebugaran yang lebih terstruktur untuk anak usia 9-10 tahun:<br><br><b>Latihan Daya Tahan:</b><br>1. Lari keliling lapangan dengan ritme konstan<br>2. Lompat tali (skipping) bertahap dari 1-3 menit<br>3. Senam aerobik ringan dengan durasi 10-15 menit<br><br><b>Latihan Kekuatan:</b><br>1. <b>Push-up:</b> Full push-up (jika mampu) atau knee push-up<br>2. <b>Sit-up:</b> Dengan lutut ditekuk, tangan di dada atau kepala<br>3. <b>Squat:</b> Dengan beban tubuh atau tambahan ringan<br>4. <b>Back extension:</b> Untuk menguatkan otot punggung<br><br><b>Latihan Kelenturan:</b><br>1. Peregangan statis untuk semua otot utama (hold 15-30 detik)<br>2. Peregangan dinamis sebelum latihan utama<br><br><b>Pengukuran Kebugaran Sederhana:</b><br>1. Tes lari 40 meter untuk kecepatan<br>2. Tes sit-and-reach untuk kelenturan<br>3. Jumlah push-up/sit-up dalam 30 detik untuk kekuatan" 
+            },
+            'f': { 
+                title: "F. Senam Lantai", 
+                vid: "ZO6UV8daO5o", // Video Guling Depan
+                desc: "<b>RANGKUMAN LENGKAP:</b><br><br>Pengembangan senam lantai dengan teknik yang lebih baik:<br><br><b>Gerak Bertumpu:</b><br>1. Handstand dengan bantuan teman/dinding dengan durasi lebih lama<br>2. Meroda (cartwheel) dengan bantuan untuk pemula<br><br><b>Gerak Keseimbangan:</b><br>1. <b>Sikap lilin:</b> Versi stabil 10-15 detik tanpa goyang<br>2. <b>Sikap kapal terbang:</b> Bertahan 10 detik dengan postur sempurna<br>3. Berdiri satu kaki dengan mata tertutup (5-10 detik)<br><br><b>Gerak Berpindah:</b><br>1. <b>Guling depan:</b> Teknik sempurna tanpa bantuan, mendarat dengan kaki rapat<br>2. <b>Guling belakang:</b> Pengenalan awal dengan bantuan guru<br>3. Kombinasi: Guling depan → berdiri → sikap kapal terbang<br><br><b>Teknik Mendarat:</b><br>1. Selalu dengan lutut mengeper untuk mengurangi benturan<br>2. Posisi tangan siap menopang jika kehilangan keseimbangan<br>3. Pandangan ke depan untuk orientasi ruang" 
+            },
+            'g': { 
+                title: "G. Gerak Berirama", 
+                vid: "5H-Bs0Q41f4", // Video Gerak Berirama
+                desc: "<b>RANGKUMAN LENGKAP:</b><br><br>Senam irama dengan kompleksitas lebih tinggi dan variasi yang kaya:<br><br><b>Variasi Langkah Kaki:</b><br>1. Langkah biasa (walk), langkah rapat (close step), langkah keseimbangan (balance step)<br>2. Langkah silang (cross step), langkah samping (side step), langkah ayun (swing step)<br>3. Kombinasi langkah dengan hitungan 4×8 atau 8×8<br><br><b>Variasi Ayunan Lengan:</b><br>1. Ayunan satu lengan, dua lengan bersamaan, bergantian<br>2. Ayunan lengan dengan level berbeda (tinggi, sedang, rendah)<br>3. Pola lingkaran, angka delapan, dan garis lurus<br><br><b>Koreografi Sederhana:</b><br>1. SKJ dengan 12-16 gerakan berbeda<br>2. Penekanan pada keselarasan gerak dengan musik<br>3. Formasi sederhana (berbaris, setengah lingkaran, berpasangan)<br><br><b>Unsur Penilaian:</b><br>1. Ketepatan gerak dengan irama musik<br>2. Keluwesan dan ekspresi wajah<br>3. Keserasian antara langkah kaki dan gerakan lengan<br>4. Kekompakan jika dilakukan berkelompok" 
+            },
+            'h': { 
+                title: "H. Renang & Penanganan Cedera", 
+                vid: "_4XnHtk1AW4", // Video Renang Gaya Bebas
+                desc: "<b>RANGKUMAN LENGKAP:</b><br><br>Dua aspek penting: teknik renang dan penanganan cedera dasar:<br><br><b>Renang Gaya Bebas (Crawl):</b><br>1. <b>Posisi badan:</b> Telungkup, streamline (seperti torpedo), kepala di dalam air<br>2. <b>Gerakan kaki:</b> Kaki lurus, gerakan naik turun dari paha (flutter kick)<br>3. <b>Gerakan lengan:</b> Pull (menarik), push (mendorong), recovery (pemulihan)<br>4. <b>Pernapasan:</b> Menoleh ke samping saat lengan recovery, ambil napas<br>5. <b>Koordinasi:</b> 6 tendangan kaki untuk 1 siklus lengan kanan-kiri<br><br><b>Penanganan Cedera Ringan:</b><br>1. <b>Luka lecet:</b> Bersihkan dengan air mengalir, oles antiseptik, tutup plester<br>2. <b>Memar:</b> Kompres dingin (es bungkus kain) untuk mengurangi bengkak<br>3. <b>Kram otot:</b> Regangkan otot secara perlahan, pijat ringan<br>4. <b>Terpeleset:</b> Istirahatkan bagian yang sakit, kompres, elevasi jika bengkak<br><br><b>Kebersihan Kolam Renang:</b><br>1. Mandi sebelum masuk kolam<br>2. Pakai topi renang untuk rambut panjang<br>3. Tidak buang air kecil/kecil di kolam" 
+            },
+            
+            // --- DATA UJIAN ---
+            'sts': { 
+                title: "SUMATIF TENGAH SEMESTER (STS)", 
+                isExam: true, 
+                desc: "<b>RANGKUMAN PERSIAPAN UJIAN:</b><br><br>STS Kelas 4 menguji Bab A sampai D:<br><br>1. <b>Permainan Bola Besar:</b> Teknik dasar sepak bola (tendang/hentikan), voli (passing bawah), basket (dribble/pass)<br>2. <b>Permainan Bola Kecil (Kasti):</b> Teknik lempar (melambung/mendatar), tangkap, dan pukul bola<br>3. <b>Atletik:</b> Jalan cepat, lari jarak pendek (start-finish), lompat jauh (4 fase)<br>4. <b>Bela Diri:</b> Sikap pasang, kuda-kuda, pola langkah, pukulan/tangkasan pencak silat<br><br>Pelajari teknik dasar setiap cabang olahraga, istilah yang digunakan, dan peraturan sederhana. Perhatikan aspek keselamatan dan sportivitas.",
+                count: "40 Butir Soal" 
+            },
+            'sas': { 
+                title: "SUMATIF AKHIR SEMESTER (SAS)", 
+                isExam: true, 
+                desc: "<b>RANGKUMAN PERSIAPAN UJIAN:</b><br><br>SAS Kelas 4 menguji Bab E sampai H:<br><br>1. <b>Kebugaran Jasmani:</b> Latihan daya tahan, kekuatan (push-up/sit-up), kelenturan, pengukuran sederhana<br>2. <b>Senam Lantai:</b> Gerak bertumpu, keseimbangan (sikap lilin), guling depan, teknik mendarat<br>3. <b>Gerak Berirama:</b> Variasi langkah/ayunan lengan, keselarasan dengan irama, koreografi SKJ<br>4. <b>Renang & Cedera:</b> Teknik gaya bebas, penanganan luka lecet/memar, kebersihan kolam<br><br>Pahami teknik, urutan gerakan, prinsip keselamatan, dan penanganan darurat dasar. Ujian ini mengukur kemampuan teoritis dan kesadaran kesehatan.",
+                count: "40 Butir Soal" 
+            }
+        };
+        // ===========================================
+        // KISI-KISI LENGKAP & SINKRON (SESUAI CONTOH)
+        // ===========================================
+        const HTML_KISI_STS = `
+            <div style="text-align:center; font-weight:bold; margin-bottom:10px; font-size:16px; border-bottom:3px solid #2e7d32; padding-bottom:10px;">KISI-KISI SOAL STS KELAS 4 (GANJIL)</div>
+            <table class="kisi-table" width="100%">
+                <thead>
+                    <tr>
+                        <th width="5%">NO</th>
+                        <th width="20%">MATERI</th>
+                        <th>INDIKATOR SOAL</th>
+                        <th width="15%">BENTUK SOAL</th>
+                        <th width="10%">NO SOAL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td rowspan="3" style="vertical-align:middle;"><b>Bab A.</b><br>Permainan Bola Besar</td>
+                        <td>Disajikan gambar, siswa mampu mengidentifikasi gerak menendang bola dengan kaki bagian dalam.</td>
+                        <td>Pilihan Ganda</td>
+                        <td>1-4</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Siswa dapat menjelaskan posisi tangan saat melakukan passing bawah bola voli.</td>
+                        <td>Isian</td>
+                        <td>21, 22</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Siswa dapat menyebutkan variasi gerak lokomotor dalam permainan basket.</td>
+                        <td>Essay</td>
+                        <td>1</td>
+                    </tr>
+
+                    <tr>
+                        <td>4</td>
+                        <td rowspan="3" style="vertical-align:middle;"><b>Bab B.</b><br>Permainan Kasti</td>
+                        <td>Disajikan gambar, siswa mampu menentukan teknik melempar bola melambung.</td>
+                        <td>Pilihan Ganda</td>
+                        <td>5-8</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Siswa dapat menyebutkan alat pemukul dalam permainan kasti.</td>
+                        <td>Isian</td>
+                        <td>23</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>Siswa dapat menjelaskan cara menangkap bola menyusur tanah.</td>
+                        <td>Essay</td>
+                        <td>2</td>
+                    </tr>
+
+                    <tr>
+                        <td>7</td>
+                        <td rowspan="3" style="vertical-align:middle;"><b>Bab C.</b><br>Atletik (Jalan/Lari)</td>
+                        <td>Siswa mengetahui perbedaan jalan dan lari (adanya saat melayang).</td>
+                        <td>Pilihan Ganda</td>
+                        <td>9-12</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>Siswa dapat menyebutkan tumpuan kaki saat melakukan lompat jauh.</td>
+                        <td>Isian</td>
+                        <td>24</td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td>Siswa dapat menjelaskan teknik start jongkok pada lari jarak pendek.</td>
+                        <td>Essay</td>
+                        <td>3</td>
+                    </tr>
+
+                    <tr>
+                        <td>10</td>
+                        <td rowspan="2" style="vertical-align:middle;"><b>Bab D.</b><br>Pencak Silat</td>
+                        <td>Disajikan gambar, siswa dapat mengidentifikasi sikap kuda-kuda tengah.</td>
+                        <td>Pilihan Ganda</td>
+                        <td>13-15</td>
+                    </tr>
+                    <tr>
+                        <td>11</td>
+                        <td>Siswa dapat menyebutkan fungsi gerakan tangkisan.</td>
+                        <td>Essay</td>
+                        <td>4, 5</td>
+                    </tr>
+                </tbody>
+            </table>`; 
+
+        const HTML_KISI_SAS = `
+            <div style="text-align:center; font-weight:bold; margin-bottom:10px; font-size:16px; border-bottom:3px solid #2e7d32; padding-bottom:10px;">KISI-KISI SOAL SAS KELAS 4 (GENAP)</div>
+            <table class="kisi-table" width="100%">
+                <thead>
+                    <tr>
+                        <th width="5%">NO</th>
+                        <th width="20%">MATERI</th>
+                        <th>INDIKATOR SOAL</th>
+                        <th width="15%">BENTUK SOAL</th>
+                        <th width="10%">NO SOAL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td rowspan="3" style="vertical-align:middle;"><b>Bab E.</b><br>Kebugaran Jasmani</td>
+                        <td>Disajikan gambar, siswa mampu menentukan latihan kekuatan otot perut (Sit-up).</td>
+                        <td>Pilihan Ganda</td>
+                        <td>1-4</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Siswa dapat menjelaskan manfaat latihan kelenturan (mencegah cedera).</td>
+                        <td>Isian</td>
+                        <td>21</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Siswa dapat menyebutkan bentuk latihan daya tahan jantung (jogging).</td>
+                        <td>Essay</td>
+                        <td>1</td>
+                    </tr>
+
+                    <tr>
+                        <td>4</td>
+                        <td rowspan="3" style="vertical-align:middle;"><b>Bab F.</b><br>Senam Lantai</td>
+                        <td>Disajikan gambar, siswa dapat mengidentifikasi gerak guling depan.</td>
+                        <td>Pilihan Ganda</td>
+                        <td>5-8</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Siswa dapat menyebutkan posisi awal sikap lilin (tidur terlentang).</td>
+                        <td>Isian</td>
+                        <td>22, 23</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>Siswa dapat menjelaskan cara melakukan pendaratan yang aman.</td>
+                        <td>Essay</td>
+                        <td>2</td>
+                    </tr>
+
+                    <tr>
+                        <td>7</td>
+                        <td rowspan="3" style="vertical-align:middle;"><b>Bab G.</b><br>Gerak Berirama</td>
+                        <td>Siswa mengetahui variasi gerak langkah kaki rapat.</td>
+                        <td>Pilihan Ganda</td>
+                        <td>9-12</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>Siswa dapat menyebutkan hitungan yang digunakan dalam senam irama.</td>
+                        <td>Isian</td>
+                        <td>24</td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td>Siswa dapat menjelaskan kombinasi ayunan lengan dan langkah kaki.</td>
+                        <td>Essay</td>
+                        <td>3</td>
+                    </tr>
+
+                    <tr>
+                        <td>10</td>
+                        <td rowspan="2" style="vertical-align:middle;"><b>Bab H.</b><br>Renang & Cedera</td>
+                        <td>Disajikan gambar, siswa dapat menunjukkan posisi badan renang gaya bebas.</td>
+                        <td>Pilihan Ganda</td>
+                        <td>13-15</td>
+                    </tr>
+                    <tr>
+                        <td>11</td>
+                        <td>Siswa dapat menjelaskan cara penanganan pertama pada luka lecet (dibersihkan).</td>
+                        <td>Essay</td>
+                        <td>4, 5</td>
+                    </tr>
+                </tbody>
+            </table>`;
+
+        // ==========================================
+        // 2. KONEKSI FIREBASE (JALUR KELAS 4)
+        // ==========================================
+        const firebaseConfig = { apiKey: "AIzaSyD7FsbgyUF1jvDvcrb6wrWlEiQJUFZG3kE", authDomain: "pjok-sekolah-bapak-rendi.firebaseapp.com", databaseURL: "https://pjok-sekolah-bapak-rendi-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "pjok-sekolah-bapak-rendi", appId: "1:337016584526:web:8534c7cf4012a35427861f" };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        let statusUjian = {};
+
+        // SINKRONISASI DATABASE KELAS 4
+        database.ref('akses_soal/kelas_4').on('value', (snap) => {
+            statusUjian = snap.val() || {};
+            renderPage(); 
+            document.getElementById('conn-status').innerText = "Status: Terhubung";
+            document.getElementById('conn-status').style.background = "#00c853";
+        });
+
+        let cur = 'a';
+        function bukaHalaman(k, b) { cur=k; document.querySelectorAll('.nav-btn').forEach(e=>e.classList.remove('active')); if(b)b.classList.add('active'); renderPage(); }
+
+        function renderPage() {
+            const d = dataMateri[cur];
+            const isOpen = statusUjian[cur.toUpperCase()] === true;
+            let h = `<h2>${d.title}</h2>`;
+
+            if(!d.isExam) {
+                h += `
+                <div class="video-container"><iframe src="https://www.youtube.com/embed/${d.vid}" allowfullscreen></iframe></div>
+                <div class="info-card"><h3>📋 Rangkuman Materi</h3>${d.desc}</div>`;
+            } else {
+                h += `
+                <div class="exam-header">
+                    <div class="exam-title">${d.title}</div>
+                    <div class="exam-desc">${d.desc}</div>
+                    <div><span class="badge">⏱ 90 Menit</span><span class="badge">📝 ${d.count}</span><span class="badge">🛡 Jujur</span></div>
+                </div>`;
+            }
+
+            h += `<div class="btn-group">`;
+            if(d.isExam) h += `<button class="action-btn btn-kisi" onclick="tampilKisi('${cur}')">👁️ LIHAT KISI-KISI</button>`;
+            
+            if(isOpen) {
+                h += `<button class="action-btn btn-quiz" onclick="window.location.href='kuis_kelas_4.html?bab=${cur.toUpperCase()}&kelas=4'">🚀 KERJAKAN SEKARANG</button>`;
+                h += `<button class="action-btn btn-download" onclick="downloadSoal('${cur}')">📄 DOWNLOAD NASKAH SOAL</button>`;
+            } else {
+                h += `<button class="action-btn" disabled style="background:#e0e0e0; color:#999;">🔒 AKSES TERTUTUP</button>`;
+            }
+            h += `</div>`;
+
+            if(d.isExam) {
+                const isiKisi = cur === 'sts' ? HTML_KISI_STS : HTML_KISI_SAS;
+                h += `<div id="kisi-${cur}" class="kisi-container">${isiKisi}</div>`;
+            }
+
+            document.getElementById('content-dynamic').innerHTML = h;
+            window.scrollTo(0,0);
+        }
+
+        function tampilKisi(kode) {
+            const el = document.getElementById('kisi-' + kode);
+            if(el) { el.style.display = el.style.display === 'block' ? 'none' : 'block'; if(el.style.display === 'block') el.scrollIntoView({behavior:'smooth'}); }
+        }
+
+        // ==========================================
+        // 3. FUNGSI DOWNLOAD PDF (KHUSUS KELAS 4)
+        // ==========================================
+        window.downloadSoal = function(kode) {
+            if(!window.BANK_SOAL_4 || !window.BANK_SOAL_4[kode.toUpperCase()]) { alert("Bank soal belum dimuat."); return; }
+            window.scrollTo(0, 0);
+
+            const soal = window.BANK_SOAL_4[kode.toUpperCase()];
+            const judul = dataMateri[kode].title.replace("A. ", "").replace("B. ", "").replace("C. ", "").replace("D. ", "").replace("E. ", "").replace("F. ", "").replace("G. ", "").replace("H. ", "");
+            
+            const div = document.getElementById('pdf-content');
+            let html = `
+                <table class="pdf-header-table">
+                    <tr><td align="center"><h3 style="margin:0; font-size:16pt;">LEMBAR KERJA PESERTA DIDIK (LKPD)</h3><h4 style="margin:5px 0; font-size:14pt;">SD NEGERI 1 CERDAS - PJOK KELAS 4</h4></td></tr>
+                </table>
+                <table width="100%" style="margin-bottom:15px; border-bottom:2px solid black; font-weight:bold;">
+                    <tr><td>Nama : ...........................................</td><td align="right">Hari/Tgl : ..........................</td></tr>
+                    <tr><td>Materi : ${judul}</td><td align="right">Nilai : ..........................</td></tr>
+                </table>`;
+
+            let no = 1;
+            // FORMAT 4 OPSI (A, B, C, D)
+            if(soal.pg) {
+                html += `<div class="pdf-section">I. Pilihlah jawaban yang paling benar!</div>`;
+                soal.pg.forEach(s => {
+                    html += `<div class="pdf-item">${no}. ${s.q}<br>
+                        <div class="pdf-options" style="margin-top:5px;">
+                            A. ${s.opt[0]} &nbsp;&nbsp;&nbsp; 
+                            B. ${s.opt[1]} &nbsp;&nbsp;&nbsp; 
+                            C. ${s.opt[2]} &nbsp;&nbsp;&nbsp; 
+                            D. ${s.opt[3]}
+                        </div>
+                    </div>`;
+                    no++;
+                });
+            }
+            if(soal.isian) {
+                html += `<div class="pdf-section">II. Isilah titik-titik di bawah ini!</div>`;
+                soal.isian.forEach(s => { html += `<div class="pdf-item">${no}. ${s} ...........................................</div>`; no++; });
+            }
+            if(soal.essay) {
+                html += `<div class="pdf-section">III. Jawablah pertanyaan berikut!</div>`;
+                soal.essay.forEach(s => { html += `<div class="pdf-item">${no}. ${s}<br><br><br></div>`; no++; });
+            }
+
+            div.innerHTML = html;
+
+            html2pdf().set({
+                margin: [10, 15, 15, 15],
+                filename: `Naskah_Soal_K4_${kode.toUpperCase()}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            }).from(div).save();
+        };
+
+        window.onload = () => {
+            const navA = document.getElementById('nav-a');
+            if(navA) bukaHalaman('a', navA);
+        };
+    </script>
+</body>
+</html>

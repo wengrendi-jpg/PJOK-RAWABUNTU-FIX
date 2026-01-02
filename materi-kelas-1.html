@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PJOK Kelas 1 SD</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="bank_soal_1.js"></script>
+
+    <style>
+        /* TEMA BIRU MUDA (SESUAI GAMBAR) */
+        body { font-family: 'Comic Sans MS', 'Segoe UI', sans-serif; background-color: #e3f2fd; margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; color: #333; }
+        .header-top { background: #fff; padding: 15px 30px; border-bottom: 4px solid #2196f3; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1000; }
+        .header-top h1 { margin: 0; color: #1565c0; font-size: 22px; font-weight: 800; text-transform: uppercase; }
+        .back-btn { display: inline-flex; align-items: center; gap: 8px; background-color: #2196f3; color: white; text-decoration: none; font-weight: 700; font-size: 13px; padding: 8px 20px; border-radius: 50px; transition: 0.3s; }
+        
+        .main-container { width: 95%; max-width: 1250px; margin: 30px auto; padding: 0; display: flex; gap: 25px; box-sizing: border-box; flex: 1; }
+        .sidebar { width: 280px; flex-shrink: 0; background: #fff; padding: 25px; border-radius: 12px; border: 1px solid #bbdefb; position: sticky; top: 100px; }
+        .content-area { flex-grow: 1; background: #fff; padding: 40px; border-radius: 12px; border: 1px solid #bbdefb; min-height: 800px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
+
+        .logo-area { text-align: center; margin-bottom: 25px; border-bottom: 2px dashed #90caf9; padding-bottom: 20px; }
+        .logo-area img { width: 80px !important; height: 80px !important; object-fit: cover; border-radius: 50%; border: 4px solid #2196f3; padding: 4px; display: inline-block; }
+        
+        .menu-label { font-weight: 900; color: #e65100; margin: 25px 0 10px 0; font-size: 0.9em; text-transform: uppercase; padding-left: 10px; border-left: 4px solid #ff9800; }
+        .nav-btn { display: block; width: 100%; padding: 12px 18px; margin-bottom: 8px; background: #e3f2fd; border: 1px solid #bbdefb; border-radius: 10px; text-align: left; cursor: pointer; color: #1565c0; font-size: 14px; font-weight: 700; transition: 0.2s; }
+        .nav-btn.active { background: #2196f3; color: white; border: 1px solid #1976d2; box-shadow: 0 4px 10px rgba(33, 150, 243, 0.3); }
+
+        h2 { border-bottom: 3px solid #ff9800; color: #e65100; padding-bottom: 10px; margin-top: 0; font-size: 24px; font-weight: 800; display: inline-block; }
+        .video-container { width: 100%; aspect-ratio: 16/9; background: #000; margin-bottom: 30px; border-radius: 12px; border: 4px solid #42a5f5; overflow: hidden; }
+        iframe { width: 100%; height: 100%; border: none; }
+        
+        /* BOX RANGKUMAN & UJIAN */
+        .info-card { background: #f9fbe7; border: 1px solid #dce775; border-left: 6px solid #cddc39; padding: 25px; border-radius: 8px; margin-bottom: 30px; line-height: 1.8; font-size: 15px; text-align: justify; color: #333; }
+        .info-card h3 { margin: 0 0 15px; color: #827717; font-size: 18px; font-weight: 800; border-bottom: 1px dashed #c0ca33; padding-bottom: 5px; }
+
+        .exam-header { text-align: center; background: #fff3e0; border: 2px solid #ff9800; padding: 30px; border-radius: 12px; margin-bottom: 30px; }
+        .exam-title { font-size: 22px; font-weight: 900; color: #e65100; margin-bottom: 10px; text-transform: uppercase; }
+        .exam-desc { font-size: 15px; color: #555; max-width: 700px; margin: 0 auto 20px; line-height: 1.6; }
+        .badge { display: inline-block; background: #fff; border: 1px solid #ff9800; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; color: #e65100; margin: 0 5px; }
+
+        /* TOMBOL */
+        .btn-group { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 25px; }
+        .action-btn { flex: 1; padding: 14px; border: none; border-radius: 8px; cursor: pointer; font-weight: 800; font-size: 14px; color: white; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .btn-quiz { background: linear-gradient(135deg, #ff9800, #f57c00); }
+        .btn-download { background: linear-gradient(135deg, #4caf50, #2e7d32); }
+        .btn-kisi { background: linear-gradient(135deg, #00acc1, #00838f); }
+        .action-btn:disabled { background: #e0e0e0; color: #999; cursor: not-allowed; }
+        
+        /* KISI-KISI & PDF */
+        .kisi-container { display: none; margin-top: 25px; background: #fafafa; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .kisi-table { width: 100%; border-collapse: collapse; font-size: 13px; font-family: 'Times New Roman', serif; }
+        .kisi-table th { background: #fff3e0; padding: 10px; border: 1px solid #ffcc80; color: #e65100; text-align: center; }
+        .kisi-table td { padding: 8px; border: 1px solid #ccc; vertical-align: top; }
+        .kisi-table tr:nth-child(even) { background-color: #fffde7; }
+
+        #pdf-overlay { position: absolute; top: 0; left: 0; z-index: -9999; visibility: hidden; width: 790px; background: white; }
+        #pdf-content { width: 100%; background: white; color: black; font-family: Arial, sans-serif; font-size: 11pt; line-height: 1.3; padding: 0; }
+        .pdf-header-table { width: 100%; border-bottom: 3px double #000; margin-bottom: 10px; }
+        .pdf-section { margin-top: 15px; font-weight: bold; }
+        .pdf-item { margin-bottom: 8px; page-break-inside: avoid !important; }
+        @media (max-width: 768px) { .main-container { flex-direction: column; margin: 15px; } .sidebar { width: 100%; } .header-top { flex-direction: column; gap: 10px; } }
+    </style>
+</head>
+<body>
+
+    <div class="header-top">
+        <div class="header-left"><a href="dashboard.html" class="back-btn">⬅ Dashboard</a></div>
+        <div class="header-center"><h1>PJOK KELAS 1 SD</h1></div>
+        <div class="header-right"></div>
+    </div>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <div class="logo-area">
+                <img src="logo_final.png" alt="Logo" onerror="this.style.display='none'">
+                <p style="margin:10px 0 0 0; font-weight:800; color:#555; font-size:13px;">SD NEGERI 1 CERDAS</p>
+            </div>
+            
+            <div class="menu-label">SEMESTER 1 (GANJIL)</div>
+            <button id="nav-a" class="nav-btn active" onclick="bukaHalaman('a', this)">A. Gerak Jalan & Lari</button>
+            <button id="nav-b" class="nav-btn" onclick="bukaHalaman('b', this)">B. Gerak Lompat</button>
+            <button id="nav-c" class="nav-btn" onclick="bukaHalaman('c', this)">C. Memutar & Menekuk</button>
+            <button id="nav-d" class="nav-btn" onclick="bukaHalaman('d', this)">D. Lempar Tangkap</button>
+            
+            <button id="nav-sts" class="nav-btn" style="border-left:4px solid #ff9800; font-weight:bold;" onclick="bukaHalaman('sts', this)">📝 UJIAN STS</button>
+            
+            <div class="menu-label">SEMESTER 2 (GENAP)</div>
+            <button id="nav-e" class="nav-btn" onclick="bukaHalaman('e', this)">E. Sikap Tubuh</button>
+            <button id="nav-f" class="nav-btn" onclick="bukaHalaman('f', this)">F. Gerak Berirama</button>
+            <button id="nav-g" class="nav-btn" onclick="bukaHalaman('g', this)">G. Aktivitas Air</button>
+            <button id="nav-h" class="nav-btn" onclick="bukaHalaman('h', this)">H. Kebersihan Diri</button>
+            
+            <button id="nav-sas" class="nav-btn" style="border-left:4px solid #ff9800; font-weight:bold;" onclick="bukaHalaman('sas', this)">🏆 UJIAN SAS</button>
+        </aside>
+
+        <main class="content-area">
+            <div id="content-dynamic"></div>
+        </main>
+    </div>
+    
+    <div id="conn-status" style="position:fixed;bottom:10px;right:10px;background:#333;color:white;padding:5px 15px;border-radius:20px;font-size:11px;">Status: Menghubungkan...</div>
+    <div id="pdf-overlay"><div id="pdf-content"></div></div>
+
+    <script>
+       // 1. DATA MATERI KELAS 1
+        const dataMateri = {
+            'a': { 
+                title: "A. Gerak Dasar Jalan & Lari", 
+                vid: "9bXiA-I9eLc", 
+                desc: "<b>RANGKUMAN LENGKAP:</b><br><br>Gerak dasar lokomotor adalah fondasi utama dalam pendidikan jasmani yang melibatkan perpindahan tempat. <b>Berjalan</b> adalah gerakan memindahkan tubuh dengan melangkahkan kaki secara bergantian, dimana minimal satu kaki selalu menapak tanah. Sikap tubuh yang benar: badan tegap, dada terbuka, pandangan lurus ke depan, dan ayunan tangan yang selaras dengan langkah kaki (tangan kanan maju bersamaan kaki kiri).<br><br><b>Berlari</b> adalah gerakan lebih cepat dengan momen melayang ketika kedua kaki tidak menapak tanah. Tekniknya: badan condong ke depan, lutut diangkat tinggi, langkah lebih lebar, dan ayunan tangan lebih kuat. Kedua gerakan ini melatih koordinasi tubuh, kekuatan otot kaki, daya tahan jantung dan paru-paru, serta keseimbangan dinamis." 
+            },
+            'b': { 
+                title: "B. Gerak Lompat", 
+                vid: "fFr6z8p8wKQ", 
+                desc: "<b>RANGKUMAN LENGKAP:</b><br><br>Gerak lompat meliputi dua teknik: <b>melompat</b> (tumpuan satu kaki) dan <b>meloncat</b> (tumpuan dua kaki). Teknik dasar: diawali dengan menekuk lutut untuk persiapan, mendorong tubuh ke atas dengan kekuatan kaki, dan diakhiri pendaratan yang aman. Pendaratan yang benar dilakukan dengan kedua kaki bersamaan disertai gerakan menekuk lutut (mengeper) untuk meredam benturan, menjaga keseimbangan, dan mencegah cedera.<br><br>Latihan ini sangat penting untuk mengembangkan: kekuatan otot tungkai, kelincahan, koordinasi tubuh, keberanian, serta kemampuan mengontrol tubuh di udara. Gerakan mengeper saat mendarat membantu melindungi sendi dari tekanan berlebihan." 
+            },
+            'c': { 
+                title: "C. Memutar & Menekuk", 
+                vid: "KvF41TSgY8A", 
+                desc: "<b>RANGKUMAN LENGKAP:</b><br><br>Gerakan memutar dan menekuk termasuk dalam <b>gerak non-lokomotor</b> - gerakan yang dilakukan di tempat tanpa menyebabkan perpindahan posisi tubuh. Contoh gerakan: memutar kepala, memutar lengan, memutar pinggang, menekuk siku, menekuk lutut, membungkuk, dan meregangkan badan.<br><br>Latihan non-lokomotor sangat penting untuk: meningkatkan fleksibilitas (kelenturan) sendi dan otot, memperluas ruang gerak persendian, melatih keseimbangan statis, mencegah kekakuan otot, dan meningkatkan kontrol tubuh. Gerakan-gerakan ini biasanya digunakan sebagai pemanasan sebelum aktivitas fisik intensif dan pendinginan setelah berolahraga." 
+            },
+            'd': { 
+                title: "D. Lempar Tangkap", 
+                vid: "dzMvgKwnJg0", 
+                desc: "<b>RANGKUMAN LENGKAP:</b><br><br>Lempar tangkap termasuk <b>gerak manipulatif</b> yang melibatkan penguasaan objek (biasanya bola). Teknik dasar melempar: memegang bola dengan benar, ayunan lengan dari belakang ke depan, lepaskan bola pada titik tepat dengan follow through. Teknik menangkap: fokus mata mengikuti bola, posisi tangan siap menerima, tekuk siku saat menerima untuk meredam gaya.<br><br>Latihan ini mengembangkan: koordinasi mata-tangan, ketepatan (akurasi), ketangkasan, waktu reaksi, kekuatan lengan, kemampuan bekerja sama, dan konsentrasi. Prinsip utama adalah menjaga fokus mata ke arah bola baik saat melempar maupun menangkap." 
+            },
+            'e': { 
+                title: "E. Sikap Tubuh", 
+                vid: "2yN75fRVDoo", 
+                desc: "<b>RANGKUMAN LENGKAP:</b><br><br>Sikap tubuh yang benar sangat penting untuk kesehatan tulang belakang dan pertumbuhan optimal. <b>Berdiri yang benar:</b> kepala tegak, bahu sejajar dan rileks, dada terbuka, perut ditarik, punggung lurus, berat badan bertumpu merata pada kedua kaki.<br><br><b>Duduk yang benar:</b> punggung menempel sandaran kursi, kaki menapak lantai, lutut membentuk sudut 90°, pandangan lurus ke depan. Saat berjalan, pertahankan postur tegak dengan dada terbuka.<br><br>Manfaat postur baik: mencegah kelainan tulang (skoliosis, kifosis, lordosis), mengurangi risiko nyeri punggung, meningkatkan penampilan dan kepercayaan diri, serta mendukung pertumbuhan tulang yang sehat." 
+            },
+            'f': { 
+                title: "F. Gerak Berirama", 
+                vid: "nfP1FaL7Si8", 
+                desc: "<b>RANGKUMAN LENGKAP:</b><br><br>Gerak berirama/senam irama adalah aktivitas menggerakkan tubuh secara teratur dan berulang mengikuti irama musik, lagu, atau hitungan. Gerakan dasar: langkah-langkah ritmis, ayunan lengan, tepukan tangan, hentakan kaki yang disesuaikan dengan tempo.<br><br>Aktivitas ini melatih <b>koordinasi sensorimotor</b> kompleks: telinga mendengar irama → otak memproses → tubuh merespons dengan gerakan sesuai. Manfaat: peningkatan kelincahan, pengembangan rasa ritme, peningkatan konsentrasi, latihan keseimbangan, mengurangi stres, meningkatkan semangat, dan membuat aktivitas fisik lebih menyenangkan." 
+            },
+            'g': { 
+                title: "G. Aktivitas Air", 
+                vid: "pNMF72Sumg4", 
+                desc: "<b>RANGKUMAN LENGKAP:</b><br><br>Aktivitas air adalah pengenalan awal lingkungan akuatik untuk membangun rasa percaya diri dan adaptasi dengan air. Kegiatan dasar: masuk kolam dengan aman, berjalan di kolam dangkal, membasahi wajah/kepala, latihan meniup gelembung, bermain dengan alat bantu apung.<br><br><b>KESELAMATAN UTAMA:</b> tidak berlari di area kolam, selalu didampingi guru/orang dewasa, memahami kedalaman kolam, mengenali tanda bahaya. Manfaat: fondasi sebelum belajar renang kompleks, melatih keberanian, mengontrol napas, mengenali sifat air (daya apung, tekanan), dan meningkatkan kepercayaan diri di air." 
+            },
+            'h': { 
+                title: "H. Kebersihan Diri", 
+                vid: "mmCH9TDa0VI", 
+                desc: "<b>RANGKUMAN LENGKAP:</b><br><br>Kebersihan diri adalah praktik esensial untuk menjaga kesehatan, terutama setelah beraktivitas fisik. Rutinitas yang harus dibiasakan:<br>1. <b>Mandi</b> 2x sehari dengan sabun dan air bersih<br>2. <b>Menggosok gigi</b> secara benar setelah makan dan sebelum tidur<br>3. <b>Memotong kuku</b> tangan dan kaki secara teratur<br>4. <b>Mencuci tangan</b> dengan sabun sebelum makan dan setelah ke toilet<br>5. <b>Mengganti pakaian</b> yang berkeringat/kotor segera<br><br>Manfaat: mencegah perkembangan bakteri/jamur, menghindari penyakit kulit, menjaga kesegaran tubuh, mendukung pertumbuhan optimal, dan membentuk kebiasaan hidup sehat sejak dini." 
+            },
+            
+            // --- DATA UJIAN ---
+            'sts': { 
+                title: "SUMATIF TENGAH SEMESTER (STS) - GANJIL", 
+                isExam: true, 
+                desc: "<b>RANGKUMAN PERSIAPAN UJIAN:</b><br><br>STS menguji pemahaman Bab A sampai D. Pelajari dengan baik:<br>1. <b>Gerak Lokomotor:</b> Teknik jalan dan lari, perbedaannya, manfaat kesehatan<br>2. <b>Gerak Lompat:</b> Perbedaan melompat dan meloncat, teknik pendaratan mengeper<br>3. <b>Gerak Non-Lokomotor:</b> Contoh gerakan memutar & menekuk, manfaat kelenturan<br>4. <b>Gerak Manipulatif:</b> Teknik lempar tangkap, prinsip koordinasi mata-tangan<br><br>Kerjakan dengan teliti. Perhatikan teknik dasar setiap gerakan dan manfaatnya. Latihan praktik membantu pemahaman konsep.",
+                count: "30 Butir Soal"
+            },
+            'sas': { 
+                title: "SUMATIF AKHIR SEMESTER (SAS) - GENAP", 
+                isExam: true, 
+                desc: "<b>RANGKUMAN PERSIAPAN UJIAN:</b><br><br>SAS menguji Bab E sampai H sebagai penilaian kenaikan kelas. Fokus pada:<br>1. <b>Sikap Tubuh:</b> Postur benar saat duduk, berdiri, berjalan; manfaat untuk tulang<br>2. <b>Gerak Berirama:</b> Prinsip mengikuti irama, koordinasi gerak dengan musik<br>3. <b>Aktivitas Air:</b> Keselamatan di kolam, kegiatan pengenalan air dasar<br>4. <b>Kebersihan Diri:</b> Rutinitas kebersihan sebelum/setelah olahraga<br><br>Pahami konsep kesehatan, keselamatan, dan praktik hidup bersih. Ujian ini menentukan pemahaman menyeluruh tentang PJOK.",
+                count: "30 Butir Soal"
+            }
+        };
+        // ==========================================
+        // KISI-KISI UPDATE (LENGKAP SESUAI FILE DOC)
+        // ==========================================
+        const HTML_KISI_STS = `
+            <div style="text-align:center; font-weight:bold; margin-bottom:10px; font-size:16px; border-bottom:3px solid #ff9800; padding-bottom:10px;">KISI-KISI SOAL STS KELAS 1 (GANJIL)</div>
+            <table class="kisi-table" width="100%">
+                <thead>
+                    <tr>
+                        <th width="5%">NO</th>
+                        <th width="20%">MATERI</th>
+                        <th>INDIKATOR SOAL</th>
+                        <th width="15%">BENTUK SOAL</th>
+                        <th width="10%">NO SOAL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td rowspan="6" style="vertical-align:middle;"><b>Pola Gerak Dasar Lokomotor</b><br>(Jalan, Lari, Lompat)</td>
+                        <td>Disajikan pernyataan, peserta didik mampu menentukan gambar gerak dasar lokomotor meniru gerak hewan dengan benar.</td>
+                        <td>Pilihan Ganda</td>
+                        <td>1, 3</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Disajikan gambar, peserta didik mampu menentukan gerak dasar lokomotor meniru gerak hewan dengan benar.</td>
+                        <td>Pilihan Ganda</td>
+                        <td>2, 4</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Disajikan gambar, peserta didik mampu menentukan aktivitas gerak lokomotor yang dilakukan sesuai gambar dengan benar.</td>
+                        <td>Pilihan Ganda</td>
+                        <td>5, 6, 7, 8</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Disajikan pernyataan, peserta didik mampu menyebutkan contoh gerak dasar lokomotor dengan benar.</td>
+                        <td>Essay</td>
+                        <td>1</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Disajikan pernyataan, peserta didik mampu menyebutkan gerak menirukan hewan dengan benar.</td>
+                        <td>Essay</td>
+                        <td>2</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>6</td>
+                        <td rowspan="6" style="vertical-align:middle;"><b>Pola Gerak Dasar Non-Lokomotor</b><br>(Memutar, Mengayun, Menekuk)</td>
+                        <td>Disajikan gambar, peserta didik mampu menentukan aktivitas gerak nonlokomotor yang dilakukan sesuai gambar dengan benar.</td>
+                        <td>Pilihan Ganda</td>
+                        <td>9, 10</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>Disajikan gambar, peserta didik mampu menentukan aktivitas gerak nonlokomotor yang dilakukan sesuai gambar.</td>
+                        <td>Isian</td>
+                        <td>11, 12, 14</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>Disajikan pernyataan, peserta didik mampu menentukan gambar aktivitas gerak nonlokomotor dengan benar.</td>
+                        <td>Isian</td>
+                        <td>13</td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td>Mengetahui manfaat pemanasan.</td>
+                        <td>Isian</td>
+                        <td>15</td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td>Disajikan pernyataan, peserta didik mampu menjelaskan gerak dasar nonlokomotor dengan benar.</td>
+                        <td>Essay</td>
+                        <td>3</td>
+                    </tr>
+                    <tr>
+                        <td>11</td>
+                        <td>Disajikan pernyataan, peserta didik mampu menyebutkan contoh gerak dasar nonlokomotor dengan benar.</td>
+                        <td>Essay</td>
+                        <td>4, 5</td>
+                    </tr>
+
+                    <tr>
+                        <td>12</td>
+                        <td><b>Pola Gerak Manipulatif</b><br>(Lempar Tangkap)</td>
+                        <td>Menghubungkan nama dan gambar bola dibawah ini dengan tepat dengan cara memberi tanda arah panah.</td>
+                        <td>Isian</td>
+                        <td>16-20</td>
+                    </tr>
+                </tbody>
+            </table>`; 
+
+        const HTML_KISI_SAS = `
+            <div style="text-align:center; font-weight:bold; margin-bottom:10px; font-size:16px; border-bottom:3px solid #ff9800; padding-bottom:10px;">KISI-KISI SOAL SAS KELAS 1 (GENAP)</div>
+            <table class="kisi-table" width="100%">
+                <thead>
+                    <tr>
+                        <th width="5%">NO</th>
+                        <th width="20%">MATERI</th>
+                        <th>INDIKATOR SOAL</th>
+                        <th width="15%">BENTUK SOAL</th>
+                        <th width="10%">NO SOAL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td rowspan="3" style="vertical-align:middle;"><b>Sikap Tubuh</b><br>(Diam & Bergerak)</td>
+                        <td>Disajikan gambar, siswa mampu menentukan sikap duduk yang benar saat membaca/menulis.</td>
+                        <td>Pilihan Ganda</td>
+                        <td>1-3</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Disajikan pernyataan, siswa dapat menyebutkan sikap berdiri siap yang benar.</td>
+                        <td>Isian</td>
+                        <td>16, 17</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Siswa dapat menjelaskan akibat jika sikap tubuh salah (membungkuk).</td>
+                        <td>Essay</td>
+                        <td>1</td>
+                    </tr>
+
+                    <tr>
+                        <td>4</td>
+                        <td rowspan="3" style="vertical-align:middle;"><b>Gerak Berirama</b><br>(Senam Irama)</td>
+                        <td>Disajikan gambar, siswa mampu menentukan gerakan menirukan tanaman tertiup angin.</td>
+                        <td>Pilihan Ganda</td>
+                        <td>4-6</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Disajikan pernyataan, siswa mengetahui alat musik yang digunakan untuk mengiringi gerak.</td>
+                        <td>Pilihan Ganda</td>
+                        <td>7, 8</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>Siswa dapat menyebutkan anggota tubuh yang bergerak saat senam irama.</td>
+                        <td>Essay</td>
+                        <td>2</td>
+                    </tr>
+
+                    <tr>
+                        <td>7</td>
+                        <td rowspan="3" style="vertical-align:middle;"><b>Aktivitas Air</b><br>(Pengenalan Air)</td>
+                        <td>Siswa mampu mengidentifikasi perlengkapan renang (kacamata/baju renang).</td>
+                        <td>Pilihan Ganda</td>
+                        <td>9-11</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>Siswa mengetahui cara masuk ke dalam kolam dangkal dengan aman.</td>
+                        <td>Isian</td>
+                        <td>18, 19</td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td>Siswa dapat menyebutkan aturan keselamatan di kolam renang.</td>
+                        <td>Essay</td>
+                        <td>3, 4</td>
+                    </tr>
+
+                    <tr>
+                        <td>10</td>
+                        <td rowspan="2" style="vertical-align:middle;"><b>Kebersihan Diri</b></td>
+                        <td>Disajikan gambar alat kebersihan, siswa menentukan kegunaannya (sikat gigi/sabun).</td>
+                        <td>Pilihan Ganda</td>
+                        <td>12-15</td>
+                    </tr>
+                    <tr>
+                        <td>11</td>
+                        <td>Siswa dapat menjelaskan cara mencuci tangan yang benar dengan sabun.</td>
+                        <td>Essay</td>
+                        <td>5</td>
+                    </tr>
+                </tbody>
+            </table>`;
+
+        // FIREBASE
+        const firebaseConfig = { apiKey: "AIzaSyD7FsbgyUF1jvDvcrb6wrWlEiQJUFZG3kE", authDomain: "pjok-sekolah-bapak-rendi.firebaseapp.com", databaseURL: "https://pjok-sekolah-bapak-rendi-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "pjok-sekolah-bapak-rendi", appId: "1:337016584526:web:8534c7cf4012a35427861f" };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        let statusUjian = {};
+
+        database.ref('akses_soal/kelas_1').on('value', (snap) => {
+            statusUjian = snap.val() || {};
+            renderPage(); 
+            document.getElementById('conn-status').innerText = "Status: Terhubung Database";
+            document.getElementById('conn-status').style.background = "#00c853";
+        });
+
+        let cur = 'a';
+        function bukaHalaman(k, b) { cur=k; document.querySelectorAll('.nav-btn').forEach(e=>e.classList.remove('active')); if(b)b.classList.add('active'); renderPage(); }
+
+        function renderPage() {
+            const d = dataMateri[cur];
+            const isOpen = statusUjian[cur.toUpperCase()] === true;
+            
+            let h = `<h2>${d.title}</h2>`;
+            
+            if(!d.isExam) {
+                // TAMPILAN MATERI BIASA
+                h += `<div class="video-container"><iframe src="https://www.youtube.com/embed/${d.vid}" allowfullscreen></iframe></div>`;
+                h += `<div class="info-card"><h3>📝 Rangkuman Detail: Materi Pembelajaran</h3>${d.desc}</div>`;
+            } else {
+                // TAMPILAN UJIAN (STS/SAS)
+                h += `
+                <div class="exam-header">
+                    <div class="exam-title">${d.title}</div>
+                    <div class="exam-desc">${d.desc}</div>
+                    <div><span class="badge">⏱ 90 Menit</span><span class="badge">📝 ${d.count}</span><span class="badge">🛡 Mandiri</span></div>
+                </div>`;
+            }
+
+            // TOMBOL AKSI
+            h += `<div class="btn-group">`;
+            if(d.isExam) h += `<button class="action-btn btn-kisi" onclick="tampilKisi('${cur}')">👁️ LIHAT KISI-KISI</button>`;
+            
+            if(isOpen) {
+                h += `<button class="action-btn btn-quiz" onclick="window.location.href='kuis_kelas_1.html?bab=${cur.toUpperCase()}&kelas=1'">🚀 KERJAKAN SOAL LATIHAN</button>`;
+                h += `<button class="action-btn btn-download" onclick="downloadSoal('${cur}')">📄 DOWNLOAD PDF (LKPD)</button>`;
+            } else {
+                h += `<button class="action-btn" disabled style="background:#e0e0e0; color:#999;">🔒 SOAL BELUM DIBUKA</button>`;
+            }
+            h += `</div>`;
+
+            // WADAH KISI-KISI (HIDDEN)
+            if(d.isExam) {
+                const isiKisi = cur === 'sts' ? HTML_KISI_STS : HTML_KISI_SAS;
+                h += `<div id="kisi-${cur}" class="kisi-container">${isiKisi}</div>`;
+            }
+
+            document.getElementById('content-dynamic').innerHTML = h;
+            window.scrollTo(0,0);
+        }
+
+        function tampilKisi(kode) {
+            const el = document.getElementById('kisi-' + kode);
+            if(el) { el.style.display = el.style.display === 'block' ? 'none' : 'block'; if(el.style.display === 'block') el.scrollIntoView({behavior:'smooth'}); }
+        }
+
+        // DOWNLOAD PDF PINTAR
+        window.downloadSoal = function(kode) {
+            if(!window.BANK_SOAL_1 || !window.BANK_SOAL_1[kode.toUpperCase()]) { alert("Bank soal belum dimuat."); return; }
+            window.scrollTo(0, 0);
+
+            const soal = window.BANK_SOAL_1[kode.toUpperCase()];
+            const judul = dataMateri[kode].title.replace("A. ", "").replace("B. ", "").replace("C. ", "").replace("D. ", "").replace("E. ", "").replace("F. ", "").replace("G. ", "").replace("H. ", "");
+            
+            const div = document.getElementById('pdf-content');
+            let html = `
+                <table class="pdf-header-table">
+                    <tr><td align="center"><h3 style="margin:0; font-size:16pt;">LEMBAR KERJA PESERTA DIDIK (LKPD)</h3><h4 style="margin:5px 0; font-size:14pt;">SD NEGERI 1 CERDAS - PJOK KELAS 1</h4></td></tr>
+                </table>
+                <table width="100%" style="margin-bottom:15px; border-bottom:2px solid black; font-weight:bold;">
+                    <tr><td>Nama : ...........................................</td><td align="right">Hari/Tgl : ..........................</td></tr>
+                    <tr><td>Materi : ${judul}</td><td align="right">Nilai : ..........................</td></tr>
+                </table>`;
+
+            let no = 1;
+            
+            // 1. PG
+            if(soal.pg && soal.pg.length > 0) {
+                html += `<div class="pdf-section">I. Pilihlah jawaban yang paling benar!</div>`;
+                soal.pg.forEach(s => {
+                    html += `<div class="pdf-item">${no}. ${s.q}<br><div class="pdf-options">A. ${s.opt[0]} &nbsp;&nbsp; B. ${s.opt[1]} &nbsp;&nbsp; C. ${s.opt[2]}</div></div>`;
+                    no++;
+                });
+            }
+
+            // 2. ISIAN (HANYA JIKA ADA SOAL)
+            let labelEssay = "II"; 
+            if(soal.isian && soal.isian.length > 0) {
+                html += `<div class="pdf-section">II. Isilah titik-titik di bawah ini!</div>`;
+                soal.isian.forEach(s => { html += `<div class="pdf-item">${no}. ${s} ...........................................</div>`; no++; });
+                labelEssay = "III";
+            }
+
+            // 3. ESSAY
+            if(soal.essay && soal.essay.length > 0) {
+                html += `<div class="pdf-section">${labelEssay}. Jawablah pertanyaan berikut!</div>`;
+                soal.essay.forEach(s => { html += `<div class="pdf-item">${no}. ${s}<br><br><br></div>`; no++; });
+            }
+
+            div.innerHTML = html;
+
+            html2pdf().set({
+                margin: [10, 15, 15, 15],
+                filename: `LKPD_K1_${kode.toUpperCase()}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            }).from(div).save();
+        };
+
+        window.onload = () => {
+            const navA = document.getElementById('nav-a');
+            if(navA) bukaHalaman('a', navA);
+        };
+    </script>
+</body>
+</html>
