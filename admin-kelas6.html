@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - PJOK Kelas 6</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <style>
+        /* TEMA UNGU KHAS KELAS 6 (Sama seperti Kelas 5) */
+        body { font-family: 'Nunito', sans-serif; background: #f3e5f5; margin: 0; padding: 20px; color: #333; }
+        
+        .header { background: linear-gradient(135deg, #7b1fa2, #ab47bc); color: white; padding: 15px 20px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(123,31,162,0.3); flex-wrap: wrap; gap: 10px;}
+        .header h2 { margin: 0; font-size: 20px; font-weight: 800; }
+        
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap;}
+        .btn-action { padding: 10px 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; color: white; display: flex; align-items: center; gap: 5px; transition: 0.2s; text-decoration: none; }
+        .btn-action:hover { transform: translateY(-2px); opacity: 0.9; }
+        
+        .btn-excel { background: #2e7d32; } 
+        .btn-reset { background: #b71c1c; } 
+        .btn-menu { background: #fff; color: #7b1fa2; }
+        .btn-materi { background: #fbc02d; color: #4a148c; } /* Tombol Jalan Pintas */
+        
+        .panel-card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 25px; position: relative; overflow: hidden; }
+        .panel-card::before { content: ''; position: absolute; top: 0; left: 0; width: 6px; height: 100%; background: #ab47bc; }
+        .card-title { font-weight: 800; font-size: 16px; margin-bottom: 20px; display: block; border-bottom: 2px dashed #e1bee7; padding-bottom: 10px; color: #4a148c; }
+
+        .switch-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; }
+        .switch-item { background: #f3e5f5; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #e1bee7; }
+        .switch { position: relative; display: inline-block; width: 50px; height: 26px; margin: 10px 0; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #7b1fa2; }
+        input:checked + .slider:before { transform: translateX(24px); }
+        .status-text { font-size: 11px; font-weight: 800; display: block; margin-top: 5px;}
+
+        .filter-group { display: flex; gap: 15px; margin-bottom: 20px; background: #fff8e1; padding: 15px; border-radius: 10px; border: 1px solid #ffe0b2; flex-wrap: wrap; }
+        .filter-input { flex: 1; padding: 12px; border: 1px solid #ffcc80; border-radius: 8px; font-family: 'Nunito'; outline: none; font-size: 14px; min-width: 200px; }
+        
+        .table-responsive { overflow-x: auto; border-radius: 10px; border: 1px solid #eee; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; background: white; white-space: nowrap; }
+        th { background: #ab47bc; color: white; padding: 12px 10px; text-align: center; border: 1px solid #ce93d8; }
+        td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; border-right: 1px solid #eee; }
+        tr:hover { background-color: #f3e5f5; }
+        
+        .nilai-box { font-weight: bold; color: #7b1fa2; }
+        .nilai-total { background: #f3e5f5; color: #4a148c; font-weight: 800; border: 2px solid #e1bee7; padding: 5px 10px; border-radius: 20px; }
+        .btn-del-mini { background: #ffcdd2; color: #c62828; border: 1px solid #ef5350; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 11px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2>🎛️ PANEL KONTROL KELAS 6</h2>
+        <div class="btn-group">
+            <a href="materi-kelas-6.html" class="btn-action btn-materi">📖 Buka Materi</a>
+            <button onclick="downloadExcel()" class="btn-action btn-excel">📊 Excel</button>
+            <button onclick="resetSemuaData()" class="btn-action btn-reset">🗑️ Reset</button>
+            <a href="index.html" class="btn-action btn-menu">🏠 Menu</a>
+        </div>
+    </div>
+
+    <div class="panel-card">
+        <span class="card-title">🔒 BUKA / TUTUP AKSES SOAL (KELAS 6)</span>
+        <div class="switch-grid" id="container-switches"></div>
+    </div>
+
+    <div class="panel-card">
+        <span class="card-title">📝 REKAP NILAI SISWA (70% Harian + 30% Ujian)</span>
+        
+        <div class="filter-group">
+            <input type="text" id="filterNama" class="filter-input" placeholder="Cari Nama Siswa..." onkeyup="renderTabel()">
+            <input type="text" id="filterSekolah" class="filter-input" placeholder="Cari Asal Sekolah..." onkeyup="renderTabel()">
+            <select id="filterKelas" class="filter-input" onchange="renderTabel()">
+                <option value="">Semua Kelas</option>
+                <option value="6A">Kelas 6A</option>
+                <option value="6B">Kelas 6B</option>
+                <option value="6C">Kelas 6C</option>
+                <option value="6D">Kelas 6D</option>
+                <option value="6E">Kelas 6E</option>
+            </select>
+        </div>
+
+        <div class="table-responsive">
+            <table id="tabel-nilai">
+                <thead>
+                    <tr>
+                        <th style="text-align:left; padding-left:15px; min-width:150px;">Nama Siswa</th>
+                        <th>Kelas</th>
+                        <th>Asal Sekolah</th>
+                        <th>Guru PJOK</th>
+                        <th>A</th> <th>B</th> <th>C</th> <th>D</th> 
+                        <th style="background:#8e24aa;">STS</th>
+                        <th style="background:#4a148c; color:#fff4b4;">RATA SMT 1</th> 
+                        <th>E</th> <th>F</th> <th>G</th> <th>H</th>
+                        <th style="background:#8e24aa;">SAS</th>
+                        <th style="background:#4a148c; color:#fff4b4;">RATA SMT 2</th>
+                        <th class="no-print">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="body-nilai">
+                    <tr><td colspan="17">Memuat data dari server...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = { apiKey: "AIzaSyD7FsbgyUF1jvDvcrb6wrWlEiQJUFZG3kE", authDomain: "pjok-sekolah-bapak-rendi.firebaseapp.com", databaseURL: "https://pjok-sekolah-bapak-rendi-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "pjok-sekolah-bapak-rendi", appId: "1:337016584526:web:8534c7cf4012a35427861f" };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        const listBab = ['A', 'B', 'C', 'D', 'STS', 'E', 'F', 'G', 'H', 'SAS'];
+        const harian1 = ['A', 'B', 'C', 'D'];
+        const ujian1 = 'STS';
+        const harian2 = ['E', 'F', 'G', 'H'];
+        const ujian2 = 'SAS';
+
+        let rawDataKuis = {}; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('container-switches');
+            listBab.forEach(bab => {
+                container.innerHTML += `
+                    <div class="switch-item">
+                        <div style="font-weight:bold; margin-bottom:5px;">BAB ${bab}</div>
+                        <label class="switch">
+                            <input type="checkbox" id="toggle-${bab}" onchange="updateAkses('${bab}')">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="status-text" id="status-${bab}">...</span>
+                    </div>`;
+            });
+
+            db.ref('akses_soal/kelas_6').on('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                listBab.forEach(bab => {
+                    const isOpen = data[bab] === true;
+                    const toggle = document.getElementById(`toggle-${bab}`);
+                    const text = document.getElementById(`status-${bab}`);
+                    if(toggle) {
+                        toggle.checked = isOpen;
+                        text.innerText = isOpen ? "TERBUKA" : "TERKUNCI";
+                        text.style.color = isOpen ? "#7b1fa2" : "#999";
+                    }
+                });
+            });
+
+            db.ref('hasil_kuis/kelas_6').on('value', (snapshot) => {
+                rawDataKuis = snapshot.val() || {};
+                renderTabel();
+            });
+        });
+
+        window.updateAkses = function(bab) {
+            const toggle = document.getElementById(`toggle-${bab}`);
+            db.ref(`akses_soal/kelas_6/${bab}`).set(toggle.checked);
+        };
+
+        function hitungNilaiAkhir(siswa, babHarian, babUjian) {
+            let totalHarian = 0, countHarian = 0;
+            babHarian.forEach(bab => {
+                if (siswa.dataNilai[bab] !== undefined) {
+                    totalHarian += parseInt(siswa.dataNilai[bab]);
+                    countHarian++;
+                }
+            });
+            const rataHarian = countHarian > 0 ? (totalHarian / countHarian) : 0;
+            const nilaiUjian = siswa.dataNilai[babUjian] !== undefined ? parseInt(siswa.dataNilai[babUjian]) : 0;
+            const adaUjian = siswa.dataNilai[babUjian] !== undefined;
+
+            if (countHarian === 0 && !adaUjian) return "-";
+            if (countHarian > 0 && !adaUjian) return Math.round(rataHarian);
+            if (countHarian === 0 && adaUjian) return nilaiUjian;
+            return Math.round((rataHarian * 0.7) + (nilaiUjian * 0.3));
+        }
+
+        function renderTabel() {
+            const tbody = document.getElementById('body-nilai');
+            tbody.innerHTML = '';
+            const cariNama = document.getElementById('filterNama').value.toLowerCase();
+            const cariSekolah = document.getElementById('filterSekolah').value.toLowerCase();
+            const cariKelas = document.getElementById('filterKelas').value;
+
+            let rekapSiswa = {};
+            Object.keys(rawDataKuis).forEach(bab => {
+                const dataBab = rawDataKuis[bab];
+                if(dataBab) {
+                    Object.keys(dataBab).forEach(uid => {
+                        const s = dataBab[uid];
+                        const uniqueKey = (s.nama + s.kelas).toLowerCase().replace(/\s/g, '');
+                        if(!rekapSiswa[uniqueKey]) {
+                            rekapSiswa[uniqueKey] = { nama: s.nama, kelas: s.kelas, guru: s.guru || '-', sekolah: s.sekolah || '-', dataNilai: {} };
+                        }
+                        rekapSiswa[uniqueKey].dataNilai[bab] = s.nilai_pg;
+                    });
+                }
+            });
+
+            let arrSiswa = Object.values(rekapSiswa);
+            arrSiswa = arrSiswa.filter(s => {
+                return s.nama.toLowerCase().includes(cariNama) && s.sekolah.toLowerCase().includes(cariSekolah) && (cariKelas === "" || s.kelas === cariKelas);
+            });
+            arrSiswa.sort((a, b) => a.kelas.localeCompare(b.kelas) || a.nama.localeCompare(b.nama));
+
+            if(arrSiswa.length === 0) { tbody.innerHTML = '<tr><td colspan="17" style="padding:20px;">Data tidak ditemukan.</td></tr>'; return; }
+
+            arrSiswa.forEach(siswa => {
+                let rowHTML = `<tr><td style="text-align:left; font-weight:bold;">${siswa.nama}</td>
+                        <td><span style="background:#eee; padding:2px 8px; border-radius:4px;">${siswa.kelas}</span></td>
+                        <td>${siswa.sekolah}</td><td>${siswa.guru}</td>`;
+                
+                harian1.forEach(bab => {
+                    const nilai = siswa.dataNilai[bab];
+                    rowHTML += `<td><span class="nilai-box" style="color:${(nilai!==undefined && nilai<75)?'#d32f2f':'#2e7d32'}">${nilai!==undefined?nilai:'-'}</span></td>`;
+                });
+                rowHTML += `<td><span class="nilai-box">${siswa.dataNilai[ujian1]||'-'}</span></td>`;
+                rowHTML += `<td><span class="nilai-total">${hitungNilaiAkhir(siswa, harian1, ujian1)}</span></td>`;
+                
+                harian2.forEach(bab => {
+                    const nilai = siswa.dataNilai[bab];
+                    rowHTML += `<td><span class="nilai-box" style="color:${(nilai!==undefined && nilai<75)?'#d32f2f':'#2e7d32'}">${nilai!==undefined?nilai:'-'}</span></td>`;
+                });
+                rowHTML += `<td><span class="nilai-box">${siswa.dataNilai[ujian2]||'-'}</span></td>`;
+                rowHTML += `<td><span class="nilai-total">${hitungNilaiAkhir(siswa, harian2, ujian2)}</span></td>`;
+
+                rowHTML += `<td class="no-print"><button class="btn-del-mini" onclick="hapusSiswa('${siswa.nama}', '${siswa.kelas}')">❌ Hapus</button></td></tr>`;
+                tbody.innerHTML += rowHTML;
+            });
+        }
+
+        window.hapusSiswa = function(nama, kelas) {
+            if(!confirm(`⚠️ Hapus data: ${nama} (${kelas})?\nData akan hilang permanen.`)) return;
+            const updates = {};
+            Object.keys(rawDataKuis).forEach(bab => {
+                if(rawDataKuis[bab]) {
+                    Object.keys(rawDataKuis[bab]).forEach(uid => {
+                        if(rawDataKuis[bab][uid].nama === nama && rawDataKuis[bab][uid].kelas === kelas) updates[`hasil_kuis/kelas_6/${bab}/${uid}`] = null;
+                    });
+                }
+            });
+            db.ref().update(updates).then(() => alert("✅ Data dihapus."));
+        };
+
+        window.resetSemuaData = function() {
+            if(prompt("⚠️ PERINGATAN! Hapus SELURUH data Kelas 6?\nKetik 'SETUJU':") === "SETUJU") {
+                db.ref('hasil_kuis/kelas_6').remove().then(() => alert("✅ Data dikosongkan."));
+            }
+        };
+
+        window.downloadExcel = function() {
+            const t = document.getElementById("tabel-nilai").cloneNode(true);
+            t.querySelectorAll('.no-print').forEach(e => e.remove());
+            XLSX.writeFile(XLSX.utils.table_to_book(t), "Rekap_Nilai_PJOK_Kelas6.xlsx");
+        }
+    </script>
+</body>
+</html>

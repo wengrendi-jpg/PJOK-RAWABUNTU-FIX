@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - PJOK Kelas 2</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <style>
+        body { font-family: 'Nunito', sans-serif; background: #e8f5e9; margin: 0; padding: 20px; color: #333; }
+        .header { background: linear-gradient(135deg, #2e7d32, #66bb6a); color: white; padding: 15px 20px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(46,125,50,0.3); }
+        .header h2 { margin: 0; font-size: 20px; font-weight: 800; }
+        .btn-group { display: flex; gap: 10px; }
+        .btn-action { padding: 10px 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; color: white; display: flex; align-items: center; gap: 5px; transition: 0.2s; text-decoration: none; }
+        .btn-excel { background: #1565c0; } 
+        .btn-reset { background: #b71c1c; } 
+        .btn-menu { background: #fff; color: #2e7d32; }
+        .panel-card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 25px; position: relative; overflow: hidden; }
+        .panel-card::before { content: ''; position: absolute; top: 0; left: 0; width: 6px; height: 100%; background: #66bb6a; }
+        .card-title { font-weight: 800; font-size: 16px; margin-bottom: 20px; display: block; border-bottom: 2px dashed #a5d6a7; padding-bottom: 10px; color: #1b5e20; }
+        
+        /* SAKLAR TOGGLE */
+        .switch-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; }
+        .switch-item { background: #f1f8e9; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #c8e6c9; }
+        .switch { position: relative; display: inline-block; width: 50px; height: 26px; margin: 10px 0; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #2e7d32; }
+        input:checked + .slider:before { transform: translateX(24px); }
+        .status-text { font-size: 11px; font-weight: 800; display: block; margin-top: 5px;}
+
+        /* TABEL NILAI - SAMAKAN DENGAN GAMBAR */
+        .filter-group { display: flex; gap: 10px; margin-bottom: 15px; background: #e8f5e9; padding: 10px; border-radius: 10px; flex-wrap: wrap; }
+        .filter-input { padding: 10px; border: 1px solid #81c784; border-radius: 8px; font-family: 'Nunito'; outline: none; min-width: 200px; }
+        .table-responsive { overflow-x: auto; border-radius: 10px; border: 1px solid #eee; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; background: white; white-space: nowrap; }
+        th { background: #66bb6a; color: white; padding: 12px 10px; text-align: center; border: 1px solid #a5d6a7; }
+        td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; border-right: 1px solid #eee; }
+        tr:hover { background-color: #f1f8e9; }
+        .nilai-total { background: #1b5e20; color: white; font-weight: 800; padding: 5px 10px; border-radius: 5px; }
+        .btn-del-mini { background: #ffcdd2; color: #c62828; border: 1px solid #ef5350; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 11px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2>📋 PANEL KONTROL KELAS 2</h2>
+        <div class="btn-group">
+            <button onclick="downloadExcel()" class="btn-action btn-excel">📊 Download Excel</button>
+            <button onclick="resetSemuaData()" class="btn-action btn-reset">🗑️ Reset Total</button>
+            <a href="index.html" class="btn-action btn-menu">🏠 Menu Utama</a>
+        </div>
+    </div>
+
+    <div class="panel-card">
+        <span class="card-title">🔒 BUKA / TUTUP AKSES SOAL (KELAS 2)</span>
+        <div class="switch-grid" id="container-switches"></div>
+    </div>
+
+    <div class="panel-card">
+        <span class="card-title">📝 REKAP NILAI SISWA (LENGKAP SEMESTER 1 & 2)</span>
+        
+        <div class="filter-group">
+            <input type="text" id="filterNama" class="filter-input" placeholder="Cari Nama Siswa..." onkeyup="renderTabel()">
+            <input type="text" id="filterSekolah" class="filter-input" placeholder="Cari Asal Sekolah..." onkeyup="renderTabel()">
+            <select id="filterKelas" class="filter-input" onchange="renderTabel()">
+                <option value="">Semua Kelas</option>
+                <option value="2">Kelas 2</option>
+                <option value="2A">2A</option>
+                <option value="2B">2B</option>
+                <option value="2C">2C</option>
+                <option value="2D">2D</option>
+                <option value="2E">2E</option>
+            </select>
+        </div>
+
+        <div class="table-responsive">
+            <table id="tabel-nilai">
+                <thead>
+                    <tr>
+                        <th style="text-align:left; padding-left:15px; min-width:150px;">Nama Siswa</th>
+                        <th>Kelas</th>
+                        <th>Asal Sekolah</th>
+                        <th>Nama Guru</th>
+                        <th>A</th> <th>B</th> <th>C</th> <th>D</th> <th style="background:#43a047;">STS</th>
+                        <th style="background:#1b5e20; color:#fff4b4;">RATA SMT 1</th> 
+                        <th>E</th> <th>F</th> <th>G</th> <th>H</th> <th style="background:#43a047;">SAS</th>
+                        <th style="background:#1b5e20; color:#fff4b4;">RATA SMT 2</th>
+                        <th class="no-print">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="body-nilai">
+                    <tr><td colspan="18">Memuat data Kelas 2...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyD7FsbgyUF1jvDvcrb6wrWlEiQJUFZG3kE",
+            authDomain: "pjok-sekolah-bapak-rendi.firebaseapp.com",
+            databaseURL: "https://pjok-sekolah-bapak-rendi-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "pjok-sekolah-bapak-rendi",
+            appId: "1:337016584526:web:8534c7cf4012a35427861f"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        const listBab = ['A', 'B', 'C', 'D', 'STS', 'E', 'F', 'G', 'H', 'SAS'];
+        let rawDataKuis = {}; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('container-switches');
+            listBab.forEach(bab => {
+                container.innerHTML += `
+                    <div class="switch-item">
+                        <div style="font-weight:bold; margin-bottom:5px;">BAB ${bab}</div>
+                        <label class="switch">
+                            <input type="checkbox" id="toggle-${bab}" onchange="updateAkses('${bab}')">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="status-text" id="status-${bab}">...</span>
+                    </div>`;
+            });
+
+            // Jalur Data Khusus Kelas 2
+            db.ref('akses_soal/kelas_2').on('value', (snap) => {
+                const data = snap.val() || {};
+                listBab.forEach(bab => {
+                    const isOpen = data[bab] === true;
+                    const elToggle = document.getElementById(`toggle-${bab}`);
+                    const elStatus = document.getElementById(`status-${bab}`);
+                    if(elToggle) elToggle.checked = isOpen;
+                    if(elStatus) {
+                        elStatus.innerText = isOpen ? "TERBUKA" : "TERKUNCI";
+                        elStatus.style.color = isOpen ? "#2e7d32" : "#999";
+                    }
+                });
+            });
+
+            db.ref('hasil_kuis/kelas_2').on('value', (snap) => {
+                rawDataKuis = snap.val() || {};
+                renderTabel();
+            });
+        });
+
+        window.updateAkses = (bab) => {
+            const status = document.getElementById(`toggle-${bab}`).checked;
+            db.ref(`akses_soal/kelas_2/${bab}`).set(status);
+        };
+
+        function calculateAverage(siswa, babList, ujianBab) {
+            let sumHarian = 0, countHarian = 0;
+            babList.forEach(bab => {
+                if(siswa.nilai[bab] !== undefined) {
+                    sumHarian += siswa.nilai[bab];
+                    countHarian++;
+                }
+            });
+            const harian = countHarian > 0 ? sumHarian / countHarian : 0;
+            const ujian = siswa.nilai[ujianBab] !== undefined ? siswa.nilai[ujianBab] : 0;
+            if(countHarian === 0 && ujian === 0) return "-";
+            // Bobot 70% Harian + 30% Ujian
+            return Math.round((harian * 0.7) + (ujian * 0.3));
+        }
+
+        function renderTabel() {
+            const tbody = document.getElementById('body-nilai');
+            const fNama = document.getElementById('filterNama').value.toLowerCase();
+            const fSekolah = document.getElementById('filterSekolah').value.toLowerCase();
+            const fKelas = document.getElementById('filterKelas').value;
+            tbody.innerHTML = '';
+
+            let rekap = {};
+            Object.keys(rawDataKuis).forEach(bab => {
+                const dataBab = rawDataKuis[bab];
+                Object.keys(dataBab || {}).forEach(id => {
+                    const s = dataBab[id];
+                    const key = (s.nama + s.kelas + s.sekolah).toLowerCase().replace(/\s/g,'');
+                    if(!rekap[key]) rekap[key] = { nama: s.nama, kelas: s.kelas, sekolah: s.sekolah || "-", guru: s.guru || "-", nilai: {} };
+                    rekap[key].nilai[bab] = s.nilai_pg;
+                });
+            });
+
+            let filtered = Object.values(rekap).filter(s => 
+                s.nama.toLowerCase().includes(fNama) && 
+                s.sekolah.toLowerCase().includes(fSekolah) && 
+                (fKelas === "" || s.kelas === fKelas)
+            );
+
+            filtered.sort((a,b) => a.sekolah.localeCompare(b.sekolah) || a.nama.localeCompare(b.nama));
+
+            filtered.forEach(siswa => {
+                const r1 = calculateAverage(siswa, ['A','B','C','D'], 'STS');
+                const r2 = calculateAverage(siswa, ['E','F','G','H'], 'SAS');
+                let row = `<tr>
+                    <td style="text-align:left; font-weight:bold;">${siswa.nama}</td>
+                    <td>${siswa.kelas}</td>
+                    <td style="color:#1565c0;">${siswa.sekolah}</td>
+                    <td>${siswa.guru}</td>
+                `;
+                ['A','B','C','D','STS'].forEach(b => row += `<td>${siswa.nilai[b] !== undefined ? siswa.nilai[b] : '-'}</td>`);
+                row += `<td><span class="nilai-total">${r1}</span></td>`;
+                ['E','F','G','H','SAS'].forEach(b => row += `<td>${siswa.nilai[b] !== undefined ? siswa.nilai[b] : '-'}</td>`);
+                row += `<td><span class="nilai-total">${r2}</span></td>
+                    <td class="no-print"><button class="btn-del-mini" onclick="hapusData('${siswa.nama}','${siswa.kelas}')">❌ Hapus</button></td></tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        window.hapusData = (nama, kelas) => {
+            if(!confirm(`Hapus data ${nama}?`)) return;
+            Object.keys(rawDataKuis).forEach(bab => {
+                const dataBab = rawDataKuis[bab];
+                Object.keys(dataBab || {}).forEach(id => {
+                    if(dataBab[id].nama === nama && dataBab[id].kelas === kelas) {
+                        db.ref(`hasil_kuis/kelas_2/${bab}/${id}`).remove();
+                    }
+                });
+            });
+        };
+
+        window.resetSemuaData = () => {
+            if(prompt("Ketik 'SETUJU' untuk menghapus SEMUA data Kelas 2:") === "SETUJU") {
+                db.ref('hasil_kuis/kelas_2').remove();
+            }
+        };
+
+        window.downloadExcel = () => {
+            const table = document.getElementById("tabel-nilai").cloneNode(true);
+            table.querySelectorAll('.no-print').forEach(e => e.remove());
+            const wb = XLSX.utils.table_to_book(table, {sheet: "Rekap Nilai Kls 2"});
+            XLSX.writeFile(wb, "Rekap_Nilai_PJOK_Kelas2.xlsx");
+        };
+    </script>
+</body>
+</html>
